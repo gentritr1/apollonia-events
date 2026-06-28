@@ -1,11 +1,13 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 /*
   Apollonia Events — design tokens.
   Muted, premium palette: ivory & marble surfaces, deep Aegean blue,
   antique gold and olive accents. Restraint over decoration.
 */
-
 @theme {
   /* Surfaces */
   --color-ivory: #f6f2e9;
@@ -26,16 +28,69 @@
   --color-gold-soft: #c4a872;
   --color-olive: #6f7245;
 
-  /* Semantic defaults */
-  --color-background: var(--color-ivory);
-  --color-foreground: var(--color-ink);
-
   /* Typography */
   --font-serif: var(--font-cormorant), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   /* Rhythm */
   --tracking-overline: 0.28em;
+}
+
+/* Map shadcn/ui semantic tokens to the Apollonia palette. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+
+  --background: var(--color-ivory);
+  --foreground: var(--color-ink);
+  --card: #fbf9f3;
+  --card-foreground: var(--color-ink);
+  --popover: #fbf9f3;
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-aegean);
+  --primary-foreground: var(--color-ivory);
+  --secondary: var(--color-marble);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-marble);
+  --muted-foreground: var(--color-ink-soft);
+  --accent: var(--color-marble);
+  --accent-foreground: var(--color-aegean-deep);
+  --destructive: #b3432f;
+  --destructive-foreground: var(--color-ivory);
+  --border: var(--color-marble-deep);
+  --input: var(--color-marble-deep);
+  --ring: var(--color-aegean);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
 }
 
 body {
