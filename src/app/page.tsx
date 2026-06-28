@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { MeanderRule } from "@/components/public/meander-rule";
+import { Logo } from "@/components/brand/logo";
 
 export default function Home() {
   return (
     <main className="marble-wash flex min-h-screen flex-col">
       {/* slim brand bar */}
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-7">
-        <span className="font-serif text-xl tracking-wide text-ink">
-          Apollonia
-        </span>
+        <Logo className="text-2xl" />
         <nav className="hidden gap-10 text-sm text-ink-soft sm:flex">
           <span className="cursor-default transition-colors hover:text-aegean">
             The Venue
