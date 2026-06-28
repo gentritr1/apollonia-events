@@ -9,16 +9,22 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
     "db:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@prisma/client": "^6.19.3",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.22.0",
     "next": "16.2.9",
+    "next-auth": "5.0.0-beta.31",
     "radix-ui": "^1.6.0",
     "react": "19.2.4",
     "react-day-picker": "^10.0.1",
@@ -31,6 +37,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^3.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -38,6 +45,7 @@
     "eslint-config-next": "16.2.9",
     "prisma": "^6.19.3",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   },
   "packageManager": "pnpm@8.15.8+sha512.d1a029e1a447ad90bc96cd58b0fad486d2993d531856396f7babf2d83eb1823bb83c5a3d0fc18f675b2d10321d49eb161fece36fe8134aa5823ecd215feed392"

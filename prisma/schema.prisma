@@ -20,6 +20,21 @@ enum ReservationSource {
   MANUAL
 }
 
+enum UserRole {
+  ADMIN
+  STAFF
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         UserRole @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model Reservation {
   id         String            @id @default(cuid())
   // The requested event date (stored at day granularity) and a time slot label.
