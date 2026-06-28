@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  DECLINED
+  CANCELLED
+}
+
+enum ReservationSource {
+  WEBSITE
+  MANUAL
+}
+
+model Reservation {
+  id         String            @id @default(cuid())
+  // The requested event date (stored at day granularity) and a time slot label.
+  date       DateTime          @db.Date
+  time       String
+  eventType  String
+  guestCount Int
+  name       String
+  phone      String
+  email      String
+  notes      String?
+  status     ReservationStatus @default(PENDING)
+  source     ReservationSource @default(WEBSITE)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@index([date])
+  @@index([status])
+}
