@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/*
+  Apollonia Events — design tokens.
+  Muted, premium palette: ivory & marble surfaces, deep Aegean blue,
+  antique gold and olive accents. Restraint over decoration.
+*/
+
+@theme {
+  /* Surfaces */
+  --color-ivory: #f6f2e9;
+  --color-marble: #ece6d9;
+  --color-marble-deep: #ddd5c4;
+
+  /* Ink / text */
+  --color-ink: #1e2a30;
+  --color-ink-soft: #475158;
+
+  /* Aegean blue (primary) */
+  --color-aegean: #2c5c6b;
+  --color-aegean-deep: #1c3d47;
+  --color-aegean-bright: #3e7f91;
+
+  /* Accents */
+  --color-gold: #a8854e;
+  --color-gold-soft: #c4a872;
+  --color-olive: #6f7245;
+
+  /* Semantic defaults */
+  --color-background: var(--color-ivory);
+  --color-foreground: var(--color-ink);
+
+  /* Typography */
+  --font-serif: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Rhythm */
+  --tracking-overline: 0.28em;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings default to the serif display face with calm, airy leading. */
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+/* A small letterspaced label used above headings. */
+.overline {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-overline);
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+/* Subtle marble wash for full-bleed sections. Kept very low-contrast. */
+.marble-wash {
+  background:
+    radial-gradient(120% 80% at 15% 0%, rgba(255, 255, 255, 0.55), transparent 55%),
+    radial-gradient(100% 90% at 100% 100%, rgba(221, 213, 196, 0.5), transparent 60%),
+    var(--color-ivory);
+}
+
+/* Thin hairline used to separate sections without heavy borders. */
+.hairline {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-marble-deep),
+    transparent
+  );
+}
