@@ -2,9 +2,10 @@ import Link from "next/link";
 import { ReservationStatus } from "@prisma/client";
 
 import { ReservationActions } from "@/components/admin/reservation-actions";
+import { ReservationStatusBadge } from "@/components/admin/reservation-status-badge";
+import { dateFormatter, statusLabels } from "@/lib/admin/reservations";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -20,27 +21,6 @@ const statusOptions = [
   ReservationStatus.DECLINED,
   ReservationStatus.CANCELLED,
 ];
-
-const statusLabels: Record<ReservationStatus, string> = {
-  PENDING: "Pending",
-  CONFIRMED: "Confirmed",
-  DECLINED: "Declined",
-  CANCELLED: "Cancelled",
-};
-
-const statusBadgeClasses: Record<ReservationStatus, string> = {
-  PENDING: "border-gold/35 bg-gold/15 text-gold",
-  CONFIRMED: "border-aegean/35 bg-aegean/15 text-aegean-deep",
-  DECLINED: "border-marble-deep bg-marble text-ink-soft",
-  CANCELLED: "border-marble-deep bg-marble text-ink-soft line-through",
-};
-
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-  timeZone: "UTC",
-});
 
 function getStatusParam(value: string | string[] | undefined) {
   const status = Array.isArray(value) ? value[0] : value;
@@ -154,12 +134,7 @@ export default async function AdminReservationsPage({
                     <span className="block">{reservation.phone}</span>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={cn(statusBadgeClasses[reservation.status])}
-                    >
-                      {statusLabels[reservation.status]}
-                    </Badge>
+                    <ReservationStatusBadge status={reservation.status} />
                   </TableCell>
                   <TableCell className="text-right">
                     <ReservationActions

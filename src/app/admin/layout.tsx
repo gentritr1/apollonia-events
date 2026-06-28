@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { CalendarDays, Images, LogOut, TableProperties } from "lucide-react";
+import {
+  CalendarDays,
+  Images,
+  LayoutDashboard,
+  LogOut,
+  TableProperties,
+} from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { auth, signOut } from "@/auth";
@@ -8,6 +14,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
+  {
+    href: "/admin",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    disabled: false,
+  },
   {
     href: "/admin/reservations",
     label: "Reservations",
@@ -18,7 +30,7 @@ const navItems = [
     href: "/admin/calendar",
     label: "Calendar",
     icon: CalendarDays,
-    disabled: true,
+    disabled: false,
   },
   {
     href: "/admin/gallery",
