@@ -305,6 +305,7 @@ export default async function AdminCalendarPage({
 
       {newReservationDate ? (
         <ManualReservationDialog
+          key={newReservationDate}
           defaultDate={newReservationDate}
           initialOpen
           returnHref={returnHref}

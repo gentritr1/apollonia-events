@@ -36,7 +36,7 @@ const navItems = [
     href: "/admin/gallery",
     label: "Gallery",
     icon: Images,
-    disabled: true,
+    disabled: false,
   },
 ];
 

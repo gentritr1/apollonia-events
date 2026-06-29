@@ -71,3 +71,18 @@ model ReminderLog {
 
   @@unique([reservationId, type])
 }
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  publicId  String   @unique
+  url       String
+  width     Int
+  height    Int
+  alt       String
+  caption   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}

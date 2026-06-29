@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
@@ -102,19 +102,14 @@ export function ManualReservationDialog({
     defaultValues: defaults(defaultDate),
   });
 
-  useEffect(() => {
-    setOpen(initialOpen);
-  }, [initialOpen]);
-
-  useEffect(() => {
-    if (open) {
-      setServerError(null);
-      reset(defaults(defaultDate));
-    }
-  }, [defaultDate, open, reset]);
-
   function changeOpen(nextOpen: boolean) {
     setOpen(nextOpen);
+
+    if (nextOpen) {
+      setServerError(null);
+      reset(defaults(defaultDate));
+      return;
+    }
 
     if (!nextOpen && returnHref) {
       router.replace(returnHref);

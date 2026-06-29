@@ -3,7 +3,9 @@ import Link from "next/link";
 
 import { MeanderRule } from "@/components/public/meander-rule";
 import { GalleryTile } from "@/components/public/gallery-tile";
+import { CloudinaryGalleryTile } from "@/components/public/cloudinary-gallery-tile";
 import { galleryItems } from "@/lib/content";
+import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Gallery — Apollonia Events",
@@ -21,7 +23,16 @@ const spans = [
   "sm:col-span-2 aspect-[16/10]",
 ];
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const images = await db.galleryImage.findMany({
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+  });
+  const cloudName =
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+    process.env.CLOUDINARY_CLOUD_NAME ||
+    "";
+  const hasImages = images.length > 0 && Boolean(cloudName);
+
   return (
     <>
       <section className="marble-wash">
@@ -40,19 +51,33 @@ export default function GalleryPage() {
 
       <section className="mx-auto w-full max-w-6xl px-6 py-20">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {galleryItems.map((item, i) => (
-            <GalleryTile
-              key={item.caption}
-              caption={item.caption}
-              tone={item.tone}
-              className={spans[i % spans.length]}
-            />
-          ))}
+          {hasImages
+            ? images.map((image, i) => (
+                <CloudinaryGalleryTile
+                  key={image.id}
+                  publicId={image.publicId}
+                  alt={image.alt}
+                  caption={image.caption}
+                  cloudName={cloudName}
+                  className={spans[i % spans.length]}
+                  priority={i === 0}
+                />
+              ))
+            : galleryItems.map((item, i) => (
+                <GalleryTile
+                  key={item.caption}
+                  caption={item.caption}
+                  tone={item.tone}
+                  className={spans[i % spans.length]}
+                />
+              ))}
         </div>
 
         <div className="mt-20 text-center">
           <p className="mx-auto max-w-md text-pretty leading-relaxed text-ink-soft">
-            Photography is a placeholder for now — real imagery will live here.
+            {hasImages
+              ? "A rotating look at Apollonia's rooms, terrace, and gatherings."
+              : "Photography is a placeholder for now — real imagery will live here."}
           </p>
           <Link
             href="/reserve"

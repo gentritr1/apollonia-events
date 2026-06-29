@@ -4,9 +4,21 @@ import { MeanderRule } from "@/components/public/meander-rule";
 import { SectionHeading } from "@/components/public/section-heading";
 import { EventCard } from "@/components/public/event-card";
 import { GalleryTile } from "@/components/public/gallery-tile";
+import { CloudinaryGalleryTile } from "@/components/public/cloudinary-gallery-tile";
 import { eventTypes, galleryItems, venueFeatures } from "@/lib/content";
+import { db } from "@/lib/db";
 
-export default function Home() {
+export default async function Home() {
+  const galleryImages = await db.galleryImage.findMany({
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    take: 3,
+  });
+  const cloudName =
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+    process.env.CLOUDINARY_CLOUD_NAME ||
+    "";
+  const hasGalleryImages = galleryImages.length > 0 && Boolean(cloudName);
+
   return (
     <>
       {/* hero */}
@@ -116,14 +128,26 @@ export default function Home() {
           </Link>
         </div>
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {galleryItems.slice(0, 3).map((item) => (
-            <GalleryTile
-              key={item.caption}
-              caption={item.caption}
-              tone={item.tone}
-              className="aspect-[4/5]"
-            />
-          ))}
+          {hasGalleryImages
+            ? galleryImages.map((image, index) => (
+                <CloudinaryGalleryTile
+                  key={image.id}
+                  publicId={image.publicId}
+                  alt={image.alt}
+                  caption={image.caption}
+                  cloudName={cloudName}
+                  className="aspect-[4/5]"
+                  priority={index === 0}
+                />
+              ))
+            : galleryItems.slice(0, 3).map((item) => (
+                <GalleryTile
+                  key={item.caption}
+                  caption={item.caption}
+                  tone={item.tone}
+                  className="aspect-[4/5]"
+                />
+              ))}
         </div>
       </section>
 
