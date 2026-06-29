@@ -15,11 +15,11 @@ async function main() {
 
   await db.user.upsert({
     where: { email },
-    update: { passwordHash },
+    update: { passwordHash, name: "Admin", role: "ADMIN" },
     create: { email, passwordHash, name: "Admin", role: "ADMIN" },
   });
 
-  console.log("Seeded admin:", email);
+  console.log("Seeded admin user.");
 }
 
 main().finally(() => db.$disconnect());

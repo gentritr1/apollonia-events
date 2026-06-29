@@ -20,7 +20,7 @@ export async function updateReservationStatus(
 ) {
   const session = await auth();
 
-  if (!session) {
+  if (session?.user?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
 

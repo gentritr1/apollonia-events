@@ -20,7 +20,7 @@ async function authenticate(formData: FormData) {
       redirectTo: "/admin",
     });
   } catch (error) {
-    if (error instanceof AuthError) {
+    if (error instanceof AuthError && error.type === "CredentialsSignin") {
       redirect("/login?error=invalid");
     }
 
