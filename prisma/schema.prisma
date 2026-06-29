@@ -25,6 +25,11 @@ enum UserRole {
   STAFF
 }
 
+enum ReminderType {
+  ADMIN_UPCOMING
+  GUEST_REMINDER
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -51,6 +56,18 @@ model Reservation {
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 
+  reminderLogs ReminderLog[]
+
   @@index([date])
   @@index([status])
+}
+
+model ReminderLog {
+  id            String       @id @default(cuid())
+  reservationId String
+  type          ReminderType
+  sentAt        DateTime     @default(now())
+  reservation   Reservation  @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@unique([reservationId, type])
 }

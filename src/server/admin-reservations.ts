@@ -5,6 +5,11 @@ import { ReservationStatus } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { sendEmail } from "@/lib/email/client";
+import {
+  guestReservationConfirmed,
+  guestReservationDeclined,
+} from "@/lib/email/templates";
 import {
   manualReservationSchema,
   type ManualReservationInput,
@@ -28,7 +33,36 @@ export async function updateReservationStatus(
     throw new Error("Invalid reservation status");
   }
 
-  await db.reservation.update({ where: { id }, data: { status } });
+  const currentReservation = await db.reservation.findUnique({ where: { id } });
+  const reservation = await db.reservation.update({
+    where: { id },
+    data: { status },
+  });
+
+  if (currentReservation?.status !== status && status === "CONFIRMED") {
+    try {
+      await sendEmail({
+        to: reservation.email,
+        subject: "Your Apollonia reservation is confirmed",
+        html: guestReservationConfirmed(reservation),
+      });
+    } catch (err) {
+      console.error("Failed to send reservation confirmation email:", err);
+    }
+  }
+
+  if (currentReservation?.status !== status && status === "DECLINED") {
+    try {
+      await sendEmail({
+        to: reservation.email,
+        subject: "About your Apollonia reservation request",
+        html: guestReservationDeclined(reservation),
+      });
+    } catch (err) {
+      console.error("Failed to send reservation decline email:", err);
+    }
+  }
+
   revalidatePath("/admin");
   revalidatePath("/admin/calendar");
   revalidatePath("/admin/reservations");
@@ -39,7 +73,7 @@ export async function createManualReservation(
 ): Promise<AdminReservationResult> {
   const session = await auth();
 
-  if (!session) {
+  if (session?.user?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
 
