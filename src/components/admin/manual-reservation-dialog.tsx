@@ -6,13 +6,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { eventTypes } from "@/lib/content";
 import {
+  manualEventTypes,
   manualReservationSchema,
   manualReservationStatusValues,
+  manualTimeSlots,
   type ManualReservationInput,
 } from "@/lib/validations/manual-reservation";
-import { timeSlots } from "@/lib/validations/reservation";
 import { statusLabels } from "@/lib/admin/reservations";
 import { createManualReservation } from "@/server/admin-reservations";
 import { Button } from "@/components/ui/button";
@@ -171,7 +171,7 @@ export function ManualReservationDialog({
                       <SelectValue placeholder="Choose a time" />
                     </SelectTrigger>
                     <SelectContent>
-                      {timeSlots.map((slot) => (
+                      {manualTimeSlots.map((slot) => (
                         <SelectItem key={slot.value} value={slot.value}>
                           {slot.label}
                         </SelectItem>
@@ -192,7 +192,7 @@ export function ManualReservationDialog({
                       <SelectValue placeholder="Select an occasion" />
                     </SelectTrigger>
                     <SelectContent>
-                      {eventTypes.map((eventType) => (
+                      {manualEventTypes.map((eventType) => (
                         <SelectItem key={eventType.slug} value={eventType.title}>
                           {eventType.title}
                         </SelectItem>

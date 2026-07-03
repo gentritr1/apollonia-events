@@ -1,10 +1,12 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { ReservationStatus } from "@prisma/client";
 
 import { auth } from "@/auth";
+import { RESERVATION_AVAILABILITY_TAG } from "@/lib/cache-tags";
 import { db } from "@/lib/db";
+import { emailCopy } from "@/lib/content";
 import { sendEmail } from "@/lib/email/client";
 import {
   guestReservationConfirmed,
@@ -43,7 +45,7 @@ export async function updateReservationStatus(
     try {
       await sendEmail({
         to: reservation.email,
-        subject: "Your Apollonia reservation is confirmed",
+        subject: emailCopy.confirmed.subject,
         html: guestReservationConfirmed(reservation),
       });
     } catch (err) {
@@ -55,7 +57,7 @@ export async function updateReservationStatus(
     try {
       await sendEmail({
         to: reservation.email,
-        subject: "About your Apollonia reservation request",
+        subject: emailCopy.declined.subject,
         html: guestReservationDeclined(reservation),
       });
     } catch (err) {
@@ -66,6 +68,7 @@ export async function updateReservationStatus(
   revalidatePath("/admin");
   revalidatePath("/admin/calendar");
   revalidatePath("/admin/reservations");
+  revalidateTag(RESERVATION_AVAILABILITY_TAG, "max");
 }
 
 export async function createManualReservation(
@@ -107,6 +110,7 @@ export async function createManualReservation(
     revalidatePath("/admin");
     revalidatePath("/admin/calendar");
     revalidatePath("/admin/reservations");
+    revalidateTag(RESERVATION_AVAILABILITY_TAG, "max");
 
     return { ok: true };
   } catch (err) {

@@ -1,6 +1,9 @@
 import type { Reservation } from "@prisma/client";
+import { format } from "date-fns";
+import { sq } from "date-fns/locale";
 
 import { dateFormatter } from "@/lib/admin/reservations";
+import { emailCopy } from "@/lib/content";
 
 type ReservationEmailData = Pick<
   Reservation,
@@ -55,10 +58,15 @@ function reservationDetails(reservation: ReservationEmailData) {
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse: collapse; margin-top: 22px;">
       <tbody>
         ${detailRows([
-          ["Date", dateFormatter.format(reservation.date)],
-          ["Time", reservation.time],
-          ["Occasion", reservation.eventType],
-          ["Guests", reservation.guestCount],
+          [
+            emailCopy.guestDetails.date,
+            `e ${format(reservation.date, "EEEE, d MMMM yyyy", {
+              locale: sq,
+            }).toLocaleLowerCase("sq-AL")}`,
+          ],
+          [emailCopy.guestDetails.time, reservation.time],
+          [emailCopy.guestDetails.occasion, reservation.eventType],
+          [emailCopy.guestDetails.guests, reservation.guestCount],
         ])}
       </tbody>
     </table>`;
@@ -111,7 +119,7 @@ export function emailLayout(bodyHtml: string, preheader: string) {
                 <p style="margin: 0 0 18px; color: ${colors.aegeanDeep}; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;">Apollonia Events</p>
                 ${bodyHtml}
                 <div style="height: 1px; background: ${colors.gold}; margin: 30px 0 18px;"></div>
-                <p style="margin: 0; color: ${colors.inkSoft}; font-size: 12px; line-height: 1.6;">Apollonia Events &middot; By reservation only</p>
+                <p style="margin: 0; color: ${colors.inkSoft}; font-size: 12px; line-height: 1.6;">${emailCopy.footer}</p>
               </td>
             </tr>
           </table>
@@ -124,37 +132,37 @@ export function emailLayout(bodyHtml: string, preheader: string) {
 
 export function guestRequestReceived(reservation: ReservationEmailData) {
   return emailLayout(
-    `${heading("We've received your request")}
-    ${paragraph("Thank you for reaching out. Our team will review the details and confirm availability shortly.")}
+    `${heading(emailCopy.requestReceived.heading)}
+    ${paragraph(emailCopy.requestReceived.paragraph)}
     ${reservationDetails(reservation)}`,
-    "We've received your Apollonia Events reservation request."
+    emailCopy.requestReceived.preheader
   );
 }
 
 export function guestReservationConfirmed(reservation: ReservationEmailData) {
   return emailLayout(
-    `${heading("Your reservation is confirmed")}
-    ${paragraph("We are pleased to confirm your reservation. We look forward to welcoming you.")}
+    `${heading(emailCopy.confirmed.heading)}
+    ${paragraph(emailCopy.confirmed.paragraph)}
     ${reservationDetails(reservation)}`,
-    "Your Apollonia Events reservation is confirmed."
+    emailCopy.confirmed.preheader
   );
 }
 
 export function guestUpcomingReminder(reservation: ReservationEmailData) {
   return emailLayout(
-    `${heading("Your reservation is tomorrow")}
-    ${paragraph("This is a brief reminder for your upcoming confirmed reservation.")}
+    `${heading(emailCopy.reminder.heading)}
+    ${paragraph(emailCopy.reminder.paragraph)}
     ${reservationDetails(reservation)}`,
-    "A reminder for your upcoming Apollonia Events reservation."
+    emailCopy.reminder.preheader
   );
 }
 
 export function guestReservationDeclined(reservation: ReservationEmailData) {
   return emailLayout(
-    `${heading("About your reservation request")}
-    ${paragraph("Thank you for considering Apollonia Events. We are sorry that we cannot accommodate this date, and we would be glad to help with another option.")}
+    `${heading(emailCopy.declined.heading)}
+    ${paragraph(emailCopy.declined.paragraph)}
     ${reservationDetails(reservation)}`,
-    "We cannot accommodate this Apollonia Events reservation date."
+    emailCopy.declined.preheader
   );
 }
 

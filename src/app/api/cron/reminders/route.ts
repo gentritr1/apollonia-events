@@ -1,6 +1,7 @@
 import { Prisma, ReminderType, ReservationStatus } from "@prisma/client";
 
 import { db } from "@/lib/db";
+import { emailCopy } from "@/lib/content";
 import { getAdminNotifyEmail, sendEmail } from "@/lib/email/client";
 import {
   adminUpcomingReminder,
@@ -79,7 +80,7 @@ export async function GET(request: Request) {
   for (const reservation of guestReservations) {
     const result = await sendEmail({
       to: reservation.email,
-      subject: "Reminder: your Apollonia reservation is tomorrow",
+      subject: emailCopy.reminder.subject,
       html: guestUpcomingReminder(reservation),
     });
 

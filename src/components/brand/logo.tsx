@@ -1,3 +1,5 @@
+import { type CSSProperties } from "react";
+
 import { cn } from "@/lib/utils";
 
 /**
@@ -15,7 +17,7 @@ export function Logo({
   return (
     <span
       className={cn(
-        "inline-flex select-none items-baseline font-serif lowercase leading-none tracking-tight text-ink",
+        "logo-wordmark inline-flex select-none items-baseline font-serif lowercase leading-none tracking-tight text-ink",
         className
       )}
     >
@@ -47,9 +49,33 @@ function ColumnGlyph({ className }: { className?: string }) {
       <path d="M4.4 6.6 H11.6 L12.2 27 H3.8 Z" />
       {/* fluting */}
       <g stroke="var(--color-ivory)" strokeWidth="0.7" opacity="0.5">
-        <line x1="6.4" y1="7.6" x2="6.2" y2="26" />
-        <line x1="8" y1="7.6" x2="8" y2="26" />
-        <line x1="9.6" y1="7.6" x2="9.8" y2="26" />
+        <line
+          className="logo-flute"
+          x1="6.4"
+          y1="7.6"
+          x2="6.2"
+          y2="26"
+          pathLength={1}
+          style={{ "--flute-delay": "0ms" } as CSSProperties}
+        />
+        <line
+          className="logo-flute"
+          x1="8"
+          y1="7.6"
+          x2="8"
+          y2="26"
+          pathLength={1}
+          style={{ "--flute-delay": "40ms" } as CSSProperties}
+        />
+        <line
+          className="logo-flute"
+          x1="9.6"
+          y1="7.6"
+          x2="9.8"
+          y2="26"
+          pathLength={1}
+          style={{ "--flute-delay": "80ms" } as CSSProperties}
+        />
       </g>
       {/* base — torus + plinth */}
       <path d="M3.2 27 H12.8 L13 29 H3 Z" />

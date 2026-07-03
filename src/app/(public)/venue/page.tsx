@@ -4,62 +4,96 @@ import Link from "next/link";
 import { MeanderRule } from "@/components/public/meander-rule";
 import { SectionHeading } from "@/components/public/section-heading";
 import { GalleryTile } from "@/components/public/gallery-tile";
-import { venueFeatures } from "@/lib/content";
+import { Reveal } from "@/components/public/reveal";
+import { venueCopy, venueFeatures } from "@/lib/content";
 
-export const metadata: Metadata = {
-  title: "The Venue — Apollonia Events",
-  description:
-    "Marble interiors and an olive-shaded terrace by the Aegean. One venue, one occasion at a time.",
-};
+export const metadata: Metadata = venueCopy.metadata;
 
-const spaces = [
-  {
-    name: "The Marble Hall",
-    description:
-      "A serene interior of stone and soft light, set for ceremonies and seated dinners alike.",
-    tone: "marble" as const,
-  },
-  {
-    name: "The Olive Terrace",
-    description:
-      "An open-air terrace shaded by olive trees — for receptions, toasts, and long evenings.",
-    tone: "olive" as const,
-  },
-  {
-    name: "The Courtyard",
-    description:
-      "A quiet threshold of water and stone where guests arrive and the day begins.",
-    tone: "aegean" as const,
-  },
-];
+function AdriaticCoastline() {
+  return (
+    <svg
+      className="adriatic-coastline h-auto w-full max-w-md text-gold"
+      viewBox="0 0 360 260"
+      role="img"
+      aria-label="Vija bregdetare nga Vlora drejt Fierit, me Apoloninë të shënuar"
+    >
+      <path
+        className="coastline-stroke"
+        pathLength={1}
+        d="M92 230C78 212 70 196 75 180C80 163 96 154 99 139C103 121 88 109 94 92C100 74 122 72 132 55C141 39 132 26 145 16"
+      />
+      <path
+        className="coastline-stroke coastline-detail"
+        pathLength={1}
+        d="M136 58C158 66 179 82 196 104C215 128 228 154 244 174"
+      />
+      <path
+        className="coastline-stroke coastline-detail"
+        pathLength={1}
+        d="M112 128C137 133 160 145 181 164"
+      />
+      <g className="coastline-dot">
+        <circle cx="211" cy="142" r="4.5" />
+        <path d="M196 142H204M218 142H226M211 127V135M211 149V157" />
+      </g>
+    </svg>
+  );
+}
+
+function HeritageBand() {
+  return (
+    <Reveal as="section" className="heritage-band border-y border-gold/15 bg-marble/25">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 px-6 py-20 lg:grid-cols-[0.82fr_1fr] lg:items-center lg:py-24">
+        <div>
+          <p className="overline mb-5">{venueCopy.heritage.title}</p>
+          <AdriaticCoastline />
+        </div>
+        <div className="heritage-beats grid gap-8 sm:grid-cols-3 lg:grid-cols-1">
+          {venueCopy.heritage.beats.map((beat) => (
+            <div key={beat.overline} className="heritage-beat">
+              <p className="overline mb-3 text-[0.66rem] tracking-[0.18em]">
+                {beat.overline}
+              </p>
+              <p className="max-w-xl font-serif text-2xl leading-snug text-ink sm:text-3xl">
+                {beat.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Reveal>
+  );
+}
 
 export default function VenuePage() {
   return (
     <>
       {/* page header */}
       <section className="marble-wash">
-        <div className="mx-auto w-full max-w-3xl px-6 py-24 text-center">
-          <p className="overline mb-5">The Venue</p>
+        <div className="hero-sequence mx-auto w-full max-w-3xl px-6 py-24 text-center">
+          <p className="overline mb-5">{venueCopy.header.overline}</p>
           <MeanderRule units={5} className="mx-auto mb-8 opacity-80" />
           <h1 className="text-balance text-5xl text-ink sm:text-6xl">
-            One house, given to one occasion
+            {venueCopy.header.title}
           </h1>
           <p className="mx-auto mt-7 max-w-xl text-pretty text-lg leading-relaxed text-ink-soft">
-            Apollonia is never double-booked. From morning preparations to the
-            last unhurried hour, the venue belongs entirely to your day.
+            {venueCopy.header.description}
           </p>
         </div>
       </section>
 
+      <HeritageBand />
+
       {/* spaces */}
-      <section className="mx-auto w-full max-w-6xl px-6 py-24">
+      <Reveal as="section" className="mx-auto w-full max-w-6xl px-6 py-24">
         <SectionHeading
-          overline="The Spaces"
-          title="Three settings, one continuous day"
-          description="Move from courtyard to hall to terrace as the occasion unfolds — each space considered, each transition calm."
+          marker="Α΄"
+          overline={venueCopy.spacesHeading.overline}
+          title={venueCopy.spacesHeading.title}
+          description={venueCopy.spacesHeading.description}
         />
         <div className="mt-16 space-y-20">
-          {spaces.map((space, i) => (
+          {venueCopy.spaces.map((space, i) => (
             <div
               key={space.name}
               className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16"
@@ -77,14 +111,15 @@ export default function VenuePage() {
             </div>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* details */}
-      <section className="bg-marble/40 py-24">
+      <Reveal as="section" className="bg-marble/40 py-24" stagger>
         <div className="mx-auto w-full max-w-6xl px-6">
           <SectionHeading
-            overline="The Details"
-            title="Everything attended to"
+            marker="Β΄"
+            overline={venueCopy.detailsHeading.overline}
+            title={venueCopy.detailsHeading.title}
             align="center"
           />
           <dl className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2">
@@ -103,13 +138,13 @@ export default function VenuePage() {
           <div className="mt-16 text-center">
             <Link
               href="/reserve"
-              className="inline-block rounded-full bg-aegean px-8 py-3.5 text-sm font-medium tracking-wide text-ivory transition-colors hover:bg-aegean-deep"
+              className="btn btn-primary"
             >
-              Check a date
+              {venueCopy.cta}
             </Link>
           </div>
         </div>
-      </section>
+      </Reveal>
     </>
   );
 }

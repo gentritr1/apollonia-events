@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { Logo } from "@/components/brand/logo";
 import { MeanderRule } from "@/components/public/meander-rule";
+import { WaveRule } from "@/components/public/wave-rule";
+import { brandName, contactCopy, footerCopy, navCopy } from "@/lib/content";
 import { navLinks } from "@/lib/nav";
 
 export function SiteFooter() {
@@ -13,15 +15,25 @@ export function SiteFooter() {
           <div className="lg:col-span-2">
             <Logo className="text-2xl" />
             <p className="mt-5 max-w-xs text-pretty text-sm leading-relaxed text-ink-soft">
-              A calm, handcrafted setting for life&rsquo;s finest occasions —
-              reserved by the day, attended to by hand.
+              {footerCopy.description}
             </p>
-            <MeanderRule units={5} className="mt-6 opacity-70" />
+            <div className="mt-7">
+              <p className="font-serif text-3xl italic leading-none text-aegean-deep">
+                φιλοξενία
+              </p>
+              <p className="mt-2 max-w-sm font-serif text-sm italic leading-relaxed text-ink-soft">
+                {footerCopy.philoxenia}
+              </p>
+            </div>
+            <div className="mt-7 flex flex-col items-start gap-3">
+              <MeanderRule units={5} className="opacity-70" />
+              <WaveRule repeats={5} className="text-gold-soft/80" />
+            </div>
           </div>
 
           {/* explore */}
           <div>
-            <p className="overline mb-5">Explore</p>
+            <p className="overline mb-5">{footerCopy.explore}</p>
             <ul className="space-y-3 text-sm text-ink-soft">
               {navLinks.map((link) => (
                 <li key={link.href}>
@@ -38,7 +50,7 @@ export function SiteFooter() {
                   href="/reserve"
                   className="transition-colors hover:text-aegean"
                 >
-                  Reserve a date
+                  {navCopy.reserveDate}
                 </Link>
               </li>
             </ul>
@@ -46,12 +58,12 @@ export function SiteFooter() {
 
           {/* visit */}
           <div>
-            <p className="overline mb-5">Visit</p>
+            <p className="overline mb-5">{footerCopy.visit}</p>
             <address className="space-y-3 text-sm not-italic text-ink-soft">
               <p>
-                By appointment
+                {footerCopy.byAppointment}
                 <br />
-                Aegean Coast
+                {footerCopy.coast}
               </p>
               <p>
                 <a
@@ -61,6 +73,16 @@ export function SiteFooter() {
                   hello@apollonia.events
                 </a>
               </p>
+              <p>
+                <a
+                  href={contactCopy.whatsappHref}
+                  className="link-arrow text-aegean transition-colors hover:text-aegean-deep"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {contactCopy.whatsappLabel}
+                </a>
+              </p>
             </address>
           </div>
         </div>
@@ -68,10 +90,10 @@ export function SiteFooter() {
         <div className="hairline mt-14 mb-6" />
         <div className="flex flex-col items-center justify-between gap-3 text-xs tracking-wide text-ink-soft sm:flex-row">
           <p>
-            &copy; {new Date().getFullYear()} Apollonia Events. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} {brandName}. {footerCopy.rights}
           </p>
-          <p>By reservation only · A curated calendar of private occasions</p>
+          <p className="footer-dusk-line">{footerCopy.duskLine}</p>
+          <p>{footerCopy.reservationOnly}</p>
         </div>
       </div>
     </footer>

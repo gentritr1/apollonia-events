@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 /** Consistent overline + serif heading used to open each section. */
 export function SectionHeading({
   overline,
+  marker,
   title,
   description,
   align = "left",
@@ -11,6 +12,7 @@ export function SectionHeading({
   className,
 }: {
   overline?: string;
+  marker?: string;
   title: string;
   description?: string;
   align?: "left" | "center";
@@ -25,7 +27,12 @@ export function SectionHeading({
         className
       )}
     >
-      {overline && <p className="overline mb-4">{overline}</p>}
+      {overline && (
+        <p className="overline mb-4">
+          {marker && <span className="section-marker">{marker}</span>}
+          {overline}
+        </p>
+      )}
       {meander && (
         <MeanderRule
           units={4}
