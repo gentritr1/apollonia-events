@@ -508,6 +508,8 @@ export const reserveCopy = {
     unavailable:
       "Kjo datë është tashmë e rezervuar. Ju lutemi zgjidhni një datë tjetër.",
     submit: "Nuk mundëm ta dërgonim kërkesën tani. Ju lutemi provoni përsëri.",
+    tooMany:
+      "Keni dërguar shumë kërkesa së fundmi. Ju lutemi provoni sërish pas pak, ose na shkruani në WhatsApp.",
   },
   timeSlots: buildTimeSlots(),
 } as const;

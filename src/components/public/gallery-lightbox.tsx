@@ -33,7 +33,7 @@ const wallLayouts = [
   },
   {
     tileClassName: "sm:col-span-3 lg:col-span-8 aspect-[16/9]",
-    lightboxClassName: "aspect-[16/9] w-full max-w-5xl",
+    lightboxClassName: "aspect-[16/9] w-[min(64rem,calc(100vw-3.5rem),92dvh)]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 66vw",
   },
   {
@@ -43,7 +43,7 @@ const wallLayouts = [
   },
   {
     tileClassName: "sm:col-span-3 lg:col-span-5 aspect-[16/9]",
-    lightboxClassName: "aspect-[16/9] w-full max-w-4xl",
+    lightboxClassName: "aspect-[16/9] w-[min(56rem,calc(100vw-3.5rem),92dvh)]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw",
   },
   {
@@ -53,7 +53,7 @@ const wallLayouts = [
   },
   {
     tileClassName: "sm:col-span-6 lg:col-span-6 aspect-[16/9]",
-    lightboxClassName: "aspect-[16/9] w-full max-w-5xl",
+    lightboxClassName: "aspect-[16/9] w-[min(64rem,calc(100vw-3.5rem),92dvh)]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw",
   },
   {
@@ -242,7 +242,10 @@ export function GalleryLightbox({
                     sizes={layout.sizes}
                     variant="curated"
                     as="span"
-                    priority={index === 0}
+                    // The second tile is the wide 16:9 one and is physically
+                    // the largest element above the fold, so it -- not the
+                    // first -- was being picked as LCP and lazy-loaded.
+                    priority={index < 2}
                   />
                 ) : (
                   <GalleryTile

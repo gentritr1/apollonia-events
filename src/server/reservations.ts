@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache";
 
 import { RESERVATION_AVAILABILITY_TAG } from "@/lib/cache-tags";
 import { db } from "@/lib/db";
+import { consumeRateLimit, getClientIp } from "@/lib/rate-limit";
 import { getAdminNotifyEmail, sendEmail } from "@/lib/email/client";
 import { adminNewRequest, guestRequestReceived } from "@/lib/email/templates";
 import { emailCopy, reserveCopy, type UpcomingFreeDate } from "@/lib/content";
@@ -125,6 +126,28 @@ export async function createReservation(
   const data = parsed.data;
 
   try {
+    // Two buckets on purpose: the IP limit stops one machine hammering the
+    // form, the email limit stops a rotating-IP script from repeatedly mailing
+    // the same victim through our Resend account. Checked before any write or
+    // send, so a blocked request costs one SELECT.
+    const ip = await getClientIp();
+    const perIp = await consumeRateLimit({
+      bucket: `reservation:ip:${ip}`,
+      limit: 5,
+      windowSeconds: 60 * 60,
+    });
+    const perEmail = perIp.ok
+      ? await consumeRateLimit({
+          bucket: `reservation:email:${data.email.toLowerCase()}`,
+          limit: 3,
+          windowSeconds: 24 * 60 * 60,
+        })
+      : { ok: false as const, retryAfterSeconds: 0 };
+
+    if (!perIp.ok || !perEmail.ok) {
+      return { ok: false, error: reserveCopy.serverErrors.tooMany };
+    }
+
     if (await isConfirmedDate(data.date)) {
       return {
         ok: false,

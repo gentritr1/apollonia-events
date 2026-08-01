@@ -8,13 +8,18 @@ import {
   guestUpcomingReminder,
 } from "@/lib/email/templates";
 import { startOfTodayUtc } from "@/lib/admin/reservations";
+import { pruneRateLimitHits } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function addUtcDays(date: Date, days: number) {
   return new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + days)
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate() + days,
+    ),
   );
 }
 
@@ -87,7 +92,7 @@ export async function GET(request: Request) {
     if (!result.skipped && result.ok) {
       const logged = await logReminder(
         reservation.id,
-        ReminderType.GUEST_REMINDER
+        ReminderType.GUEST_REMINDER,
       );
 
       if (logged) {
@@ -129,5 +134,9 @@ export async function GET(request: Request) {
     }
   }
 
-  return Response.json({ guestSent, adminSent });
+  // Housekeeping here rather than on every request: spent rate-limit rows are
+  // useless after their window closes and would otherwise grow unbounded.
+  const pruned = await pruneRateLimitHits();
+
+  return Response.json({ guestSent, adminSent, pruned });
 }
