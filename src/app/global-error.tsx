@@ -75,6 +75,10 @@ export default function GlobalError({
             >
               Provoni përsëri
             </button>
+            {/* Deliberately a plain anchor, not next/link: the root layout has
+                failed, so a client-side transition would re-enter the broken
+                tree instead of escaping it. A full document load is the point. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/"
               style={{
