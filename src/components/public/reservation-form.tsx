@@ -30,12 +30,11 @@ import {
   type ReservationInput,
 } from "@/lib/validations/reservation";
 import { contactCopy, eventTypes, reserveCopy } from "@/lib/content";
-import { createReservation, getTakenTimesForDate } from "@/server/reservations";
+import { createReservation } from "@/server/reservations";
 import { cn } from "@/lib/utils";
 
 import { ReservationInvitationPreview } from "@/components/public/reservation-invitation-preview";
 import { TempleLine } from "@/components/public/temple-line";
-import { TimeSlotPicker } from "@/components/public/time-slot-picker";
 import { UpcomingFreeDateChips } from "@/components/public/upcoming-free-dates";
 import type { UpcomingFreeDate } from "@/lib/content";
 import { Input } from "@/components/ui/input";
@@ -252,56 +251,6 @@ export function ReservationForm({
   const selectedTimeLabel = timeSlots.find(
     (slot) => slot.value === values.time,
   )?.label;
-
-  const selectedDate = values.date;
-  const [takenTimes, setTakenTimes] = useState<string[]>([]);
-  const [takenLoading, setTakenLoading] = useState(false);
-
-  // Which hours are already spoken for on the chosen date. Re-fetched whenever
-  // the date changes; `cancelled` guards the case where the visitor changes
-  // date again before the previous lookup resolves, which would otherwise grey
-  // out slots belonging to the wrong day.
-  useEffect(() => {
-    if (!selectedDate) {
-      setTakenTimes([]);
-      return;
-    }
-
-    let cancelled = false;
-    setTakenLoading(true);
-
-    getTakenTimesForDate(selectedDate)
-      .then((times) => {
-        if (!cancelled) {
-          setTakenTimes(times);
-        }
-      })
-      .catch(() => {
-        // A failed lookup must not block booking: fall back to offering every
-        // slot. The server re-checks availability on submit anyway.
-        if (!cancelled) {
-          setTakenTimes([]);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setTakenLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedDate]);
-
-  // A slot that became unavailable while it was selected must not be submitted.
-  useEffect(() => {
-    if (values.time && takenTimes.includes(values.time)) {
-      setValue("time", "" as ReservationInput["time"], {
-        shouldValidate: true,
-      });
-    }
-  }, [takenTimes, values.time, setValue]);
 
   // Restore any in-progress draft on mount. Declared BEFORE the requestedDate /
   // requestedOccasion effects so that a URL-driven date/occasion still wins:
@@ -649,15 +598,27 @@ export function ReservationForm({
                   control={control}
                   name="time"
                   render={({ field }) => (
-                    <TimeSlotPicker
-                      value={field.value}
-                      onChange={field.onChange}
-                      taken={takenTimes}
-                      loading={takenLoading}
-                      hasDate={Boolean(selectedDate)}
-                      invalid={Boolean(errors.time)}
-                      describedBy={errors.time ? "time-error" : undefined}
-                    />
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger
+                        id="time"
+                        aria-invalid={Boolean(errors.time)}
+                        aria-describedby={
+                          errors.time ? "time-error" : undefined
+                        }
+                        className="h-11 w-full bg-ivory/60 px-3"
+                      >
+                        <SelectValue
+                          placeholder={reserveCopy.form.timeFallback}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeSlots.map((slot) => (
+                          <SelectItem key={slot.value} value={slot.value}>
+                            {slot.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
                 />
               </Field>

@@ -210,36 +210,6 @@ export async function getConfirmedReservationDates(): Promise<string[]> {
 }
 
 /**
- * Times already spoken for on a given date, so the picker can grey them out
- * instead of letting someone request a slot that is gone.
- *
- * Includes PENDING as well as CONFIRMED. A confirmed date is already blocked
- * wholesale in the calendar, so in practice what this surfaces is other
- * people's outstanding requests — which is exactly the collision worth
- * preventing, since two requests for one slot means declining someone later.
- */
-export async function getTakenTimesForDate(isoDate: string): Promise<string[]> {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
-    return [];
-  }
-
-  try {
-    const reservations = await db.reservation.findMany({
-      where: {
-        date: new Date(`${isoDate}T00:00:00.000Z`),
-        status: { in: ["CONFIRMED", "PENDING"] },
-      },
-      select: { time: true },
-    });
-
-    return Array.from(new Set(reservations.map((r) => r.time)));
-  } catch (error) {
-    console.error("Failed to fetch taken times:", error);
-    return [];
-  }
-}
-
-/**
  * Fetch the next three Saturdays without a confirmed reservation.
  */
 export async function getUpcomingFreeDates(): Promise<UpcomingFreeDate[]> {
