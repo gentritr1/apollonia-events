@@ -9,9 +9,7 @@ import { adminNewRequest, guestRequestReceived } from "@/lib/email/templates";
 import { emailCopy, reserveCopy, type UpcomingFreeDate } from "@/lib/content";
 import { reservationSchema } from "@/lib/validations/reservation";
 
-export type ReservationResult =
-  | { ok: true }
-  | { ok: false; error: string };
+export type ReservationResult = { ok: true } | { ok: false; error: string };
 
 function toIsoDate(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -41,7 +39,7 @@ function getTodayInVenueTime() {
   if (!year || !month || !day) {
     const now = new Date();
     return new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
     );
   }
 
@@ -85,7 +83,7 @@ const getCachedUpcomingFreeDates = unstable_cache(
       orderBy: { date: "asc" },
     });
     const confirmedDates = new Set(
-      confirmedReservations.map((reservation) => toIsoDate(reservation.date))
+      confirmedReservations.map((reservation) => toIsoDate(reservation.date)),
     );
     const dates: UpcomingFreeDate[] = [];
     // Suggestions need realistic lead time: same-day events can't be planned,
@@ -105,7 +103,7 @@ const getCachedUpcomingFreeDates = unstable_cache(
     return dates;
   },
   ["upcoming-free-saturdays"],
-  { revalidate: 3600, tags: [RESERVATION_AVAILABILITY_TAG] }
+  { revalidate: 3600, tags: [RESERVATION_AVAILABILITY_TAG] },
 );
 
 /**
@@ -113,7 +111,7 @@ const getCachedUpcomingFreeDates = unstable_cache(
  * it as a PENDING row for an admin to confirm later.
  */
 export async function createReservation(
-  input: unknown
+  input: unknown,
 ): Promise<ReservationResult> {
   const parsed = reservationSchema.safeParse(input);
 
@@ -187,7 +185,7 @@ export async function getConfirmedReservationDates(): Promise<string[]> {
   try {
     const now = new Date();
     const today = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
     );
     const reservations = await db.reservation.findMany({
       where: {
@@ -199,10 +197,44 @@ export async function getConfirmedReservationDates(): Promise<string[]> {
     });
 
     return Array.from(
-      new Set(reservations.map((reservation) => reservation.date.toISOString().slice(0, 10)))
+      new Set(
+        reservations.map((reservation) =>
+          reservation.date.toISOString().slice(0, 10),
+        ),
+      ),
     );
   } catch (error) {
     console.error("Failed to fetch confirmed reservation dates:", error);
+    return [];
+  }
+}
+
+/**
+ * Times already spoken for on a given date, so the picker can grey them out
+ * instead of letting someone request a slot that is gone.
+ *
+ * Includes PENDING as well as CONFIRMED. A confirmed date is already blocked
+ * wholesale in the calendar, so in practice what this surfaces is other
+ * people's outstanding requests — which is exactly the collision worth
+ * preventing, since two requests for one slot means declining someone later.
+ */
+export async function getTakenTimesForDate(isoDate: string): Promise<string[]> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+    return [];
+  }
+
+  try {
+    const reservations = await db.reservation.findMany({
+      where: {
+        date: new Date(`${isoDate}T00:00:00.000Z`),
+        status: { in: ["CONFIRMED", "PENDING"] },
+      },
+      select: { time: true },
+    });
+
+    return Array.from(new Set(reservations.map((r) => r.time)));
+  } catch (error) {
+    console.error("Failed to fetch taken times:", error);
     return [];
   }
 }

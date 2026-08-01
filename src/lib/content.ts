@@ -510,6 +510,21 @@ export const reserveCopy = {
     submit: "Nuk mundëm ta dërgonim kërkesën tani. Ju lutemi provoni përsëri.",
   },
   timeSlots: buildTimeSlots(),
+  /* The picker retells "Dita në Apollonia" in miniature: the same three
+     movements of the day the home page describes, so choosing an hour feels
+     like choosing a moment rather than scrolling a list. */
+  timeGroups: [
+    { id: "paradite", label: "Paradite", from: "10:00", to: "13:30" },
+    { id: "pasdite", label: "Pasdite", from: "14:00", to: "17:30" },
+    { id: "mbremje", label: "Mbrëmje", from: "18:00", to: "22:00" },
+  ],
+  timePicker: {
+    legend: "Zgjidhni orën e fillimit",
+    taken: "E zënë",
+    takenHint: "Kjo orë është tashmë e kërkuar për këtë datë.",
+    pickDateFirst: "Zgjidhni fillimisht një datë për të parë orët e lira.",
+    loading: "Duke kontrolluar orët e lira…",
+  },
 } as const;
 
 export const footerCopy = {
