@@ -22,6 +22,7 @@ const updateGalleryImageSchema = z.object({
   alt: z.string().trim().min(1).optional(),
   caption: z.string().trim().nullable().optional(),
   sortOrder: z.number().int().min(0).optional(),
+  layout: z.enum(["STANDARD", "WIDE", "TALL"]).optional(),
 });
 
 type AddGalleryImageInput = z.infer<typeof addGalleryImageSchema>;
@@ -60,9 +61,12 @@ export async function addGalleryImage(input: AddGalleryImageInput) {
   const parsed = addGalleryImageSchema.parse(input);
   assertGalleryPublicId(parsed.publicId);
 
-  const resource = await getConfiguredCloudinary().api.resource(parsed.publicId, {
-    resource_type: "image",
-  });
+  const resource = await getConfiguredCloudinary().api.resource(
+    parsed.publicId,
+    {
+      resource_type: "image",
+    },
+  );
 
   const maxSortOrder = await db.galleryImage.aggregate({
     _max: { sortOrder: true },
@@ -91,7 +95,7 @@ export async function addGalleryImage(input: AddGalleryImageInput) {
 
 export async function updateGalleryImage(
   id: string,
-  input: UpdateGalleryImageInput
+  input: UpdateGalleryImageInput,
 ) {
   await requireAdmin();
 
@@ -109,6 +113,27 @@ export async function updateGalleryImage(
   revalidateGalleryPaths();
 }
 
+/**
+ * Persists a whole drag-and-drop reorder in one transaction.
+ *
+ * Rewrites every position rather than patching the moved row: sortOrder values
+ * drift into duplicates and gaps once rows are inserted and deleted, and a
+ * partial rewrite leaves the gallery in an order nobody chose. All or nothing.
+ */
+export async function reorderGalleryImages(ids: string[]) {
+  await requireAdmin();
+
+  const parsed = z.array(z.string().min(1)).min(1).parse(ids);
+
+  await db.$transaction(
+    parsed.map((id, index) =>
+      db.galleryImage.update({ where: { id }, data: { sortOrder: index } }),
+    ),
+  );
+
+  revalidateGalleryPaths();
+}
+
 export async function deleteGalleryImage(id: string) {
   await requireAdmin();
 
@@ -118,9 +143,12 @@ export async function deleteGalleryImage(id: string) {
     throw new Error("Gallery image not found.");
   }
 
-  const result = await getConfiguredCloudinary().uploader.destroy(image.publicId, {
-    resource_type: "image",
-  });
+  const result = await getConfiguredCloudinary().uploader.destroy(
+    image.publicId,
+    {
+      resource_type: "image",
+    },
+  );
 
   if (result.result !== "ok" && result.result !== "not found") {
     throw new Error(`Cloudinary delete failed: ${result.result || "unknown"}`);

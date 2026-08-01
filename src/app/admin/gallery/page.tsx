@@ -1,4 +1,5 @@
 import { GalleryManager } from "@/components/admin/gallery/gallery-manager";
+import { GalleryArranger } from "@/components/admin/gallery/gallery-arranger";
 import { getCloudinaryUploadFolder } from "@/lib/cloudinary";
 import { db } from "@/lib/db";
 
@@ -26,8 +27,14 @@ export default async function AdminGalleryPage() {
 
         <div className="rounded-lg border border-marble-deep bg-ivory px-4 py-3 text-sm text-ink-soft">
           <span className="font-medium text-ink">{images.length}</span>
-          <span className="ml-2">{images.length === 1 ? "image" : "images"}</span>
+          <span className="ml-2">
+            {images.length === 1 ? "image" : "images"}
+          </span>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <GalleryArranger images={images} cloudName={cloudName} />
       </div>
 
       <div className="mt-8">

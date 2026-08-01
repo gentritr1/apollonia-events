@@ -25,6 +25,7 @@ export default async function GalleryPage() {
         publicId: image.publicId,
         alt: image.alt,
         caption: image.caption,
+        layout: image.layout,
       }))
     : galleryItems.map((item) => ({
         kind: "placeholder",

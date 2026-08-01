@@ -25,6 +25,15 @@ enum UserRole {
   STAFF
 }
 
+/// How a photo occupies the public mosaic. Previously the shape came from the
+/// image's position (wallLayouts[index % 8]), so inserting one photo reshuffled
+/// every shape below it — the admin could not choose, only discover.
+enum GalleryLayout {
+  STANDARD
+  WIDE
+  TALL
+}
+
 enum ReminderType {
   ADMIN_UPCOMING
   GUEST_REMINDER
@@ -80,6 +89,7 @@ model GalleryImage {
   height    Int
   alt       String
   caption   String?
+  layout    GalleryLayout @default(STANDARD)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

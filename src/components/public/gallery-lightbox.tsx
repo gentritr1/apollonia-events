@@ -17,6 +17,7 @@ export type GalleryLightboxItem =
       publicId: string;
       alt: string;
       caption?: string | null;
+      layout?: string | null;
     }
   | {
       kind: "placeholder";
@@ -25,48 +26,41 @@ export type GalleryLightboxItem =
       tone: Tone;
     };
 
-const wallLayouts = [
-  {
+/**
+ * Shape presets, chosen per photo in the admin rather than derived from
+ * position. Each preset owns its grid span, its tile aspect and its lightbox
+ * frame, so a photo keeps the same shape no matter what is inserted above it.
+ *
+ * Lightbox frames carry explicit widths — `w-full` inside the shrink-to-fit
+ * flex column collapses to 0 — and are bounded by dvh so the caption stays on
+ * screen.
+ */
+const layoutPresets = {
+  WIDE: {
+    tileClassName: "sm:col-span-6 lg:col-span-8 aspect-[16/9]",
+    lightboxClassName: "aspect-[16/9] w-[min(64rem,calc(100vw-3.5rem),92dvh)]",
+    sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 66vw",
+  },
+  TALL: {
     tileClassName: "sm:col-span-3 lg:col-span-4 aspect-[3/4]",
     lightboxClassName: "aspect-[3/4] w-[min(44dvh,calc(100vw-3.5rem))]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
   },
-  {
-    tileClassName: "sm:col-span-3 lg:col-span-8 aspect-[16/9]",
-    lightboxClassName: "aspect-[16/9] w-[min(64rem,calc(100vw-3.5rem),92dvh)]",
-    sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 66vw",
-  },
-  {
-    tileClassName: "sm:col-span-3 lg:col-span-3 aspect-[4/5]",
-    lightboxClassName: "aspect-[4/5] w-[min(47dvh,calc(100vw-3.5rem))]",
-    sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw",
-  },
-  {
-    tileClassName: "sm:col-span-3 lg:col-span-5 aspect-[16/9]",
-    lightboxClassName: "aspect-[16/9] w-[min(56rem,calc(100vw-3.5rem),92dvh)]",
-    sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw",
-  },
-  {
-    tileClassName: "sm:col-span-3 lg:col-span-4 aspect-[3/4]",
-    lightboxClassName: "aspect-[3/4] w-[min(44dvh,calc(100vw-3.5rem))]",
+  STANDARD: {
+    tileClassName: "sm:col-span-3 lg:col-span-4 aspect-[4/3]",
+    lightboxClassName: "aspect-[4/3] w-[min(58dvh,calc(100vw-3.5rem))]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
   },
-  {
-    tileClassName: "sm:col-span-6 lg:col-span-6 aspect-[16/9]",
-    lightboxClassName: "aspect-[16/9] w-[min(64rem,calc(100vw-3.5rem),92dvh)]",
-    sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw",
-  },
-  {
-    tileClassName: "sm:col-span-3 lg:col-span-3 aspect-[3/4]",
-    lightboxClassName: "aspect-[3/4] w-[min(44dvh,calc(100vw-3.5rem))]",
-    sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw",
-  },
-  {
-    tileClassName: "sm:col-span-3 lg:col-span-3 aspect-[4/5]",
-    lightboxClassName: "aspect-[4/5] w-[min(47dvh,calc(100vw-3.5rem))]",
-    sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw",
-  },
-];
+} as const;
+
+export type GalleryLayoutKey = keyof typeof layoutPresets;
+
+function presetFor(layout?: string | null) {
+  return (
+    layoutPresets[(layout as GalleryLayoutKey) ?? "STANDARD"] ??
+    layoutPresets.STANDARD
+  );
+}
 
 const galleryTransitionName = "gallery-active-image";
 
@@ -108,10 +102,11 @@ export function GalleryLightbox({
   const selectedIndex = selected?.index ?? null;
   const selectedItem =
     selectedIndex === null ? null : (items[selectedIndex] ?? null);
-  const selectedLayout =
-    selectedIndex === null
-      ? wallLayouts[0]
-      : wallLayouts[selectedIndex % wallLayouts.length];
+  const selectedLayout = presetFor(
+    selectedItem && selectedItem.kind === "cloudinary"
+      ? selectedItem.layout
+      : null,
+  );
 
   function showPrevious() {
     setSelected((current) => {
@@ -221,7 +216,9 @@ export function GalleryLightbox({
     <>
       <ul className="grid grid-cols-1 gap-5 sm:grid-cols-6 lg:grid-cols-12">
         {items.map((item, index) => {
-          const layout = wallLayouts[index % wallLayouts.length];
+          const layout = presetFor(
+            item.kind === "cloudinary" ? item.layout : null,
+          );
           const title = itemTitle(item, index);
 
           return (
