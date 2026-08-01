@@ -87,6 +87,12 @@ connections constantly), direct for schema work.
 Local secrets live in `.env`, which is gitignored, as is
 `.env.sentry-build-plugin`.
 
+`SENTRY_AUTH_TOKEN` (in `.env.sentry-build-plugin`) is read by the Sentry build
+plugin to upload source maps. It is **not** `SENTRY_API_KEY` — nothing reads
+that name. Add `SENTRY_AUTH_TOKEN` to Vercel too, or production stack traces
+stay minified; the DSN itself is hardcoded in the sentry config files, so error
+reporting works without it.
+
 ---
 
 ## 4. Deploying
@@ -149,6 +155,24 @@ Almost always the database. `/` and `/gallery` query at build time. Check
 `sendEmail` returns `{ skipped: true }` and logs a warning when
 `RESEND_API_KEY` or `EMAIL_FROM` is unset. Nothing throws — check the function
 logs rather than waiting for an error.
+
+**A Resend key alone is not enough.** Until a domain is verified at
+resend.com/domains, Resend refuses any recipient except the account owner
+(`eventsapollonia@gmail.com`) with a 403 `validation_error`. Every guest
+confirmation to a real customer fails. Verified 2026-08-01: a test send to
+another address was rejected; the same send to the owner address succeeded.
+
+To make guest email actually work:
+
+1. Verify `apolloniaevents.com` at resend.com/domains (DNS records).
+2. Set `EMAIL_FROM` to an address on that domain, e.g.
+   `Apollonia Events <rezervime@apolloniaevents.com>` — the local `.env`
+   currently holds Resend's sandbox sender `onboarding@resend.dev`, which
+   only reaches the account owner.
+3. Add `RESEND_API_KEY` and `EMAIL_FROM` to Vercel (Production and Preview).
+
+The send-only Resend key is the right key type — it cannot list or manage
+domains, which is why `GET /domains` returns 401.
 
 ### Reminder cron not firing
 
