@@ -12,6 +12,14 @@ export type SendEmailResult =
   | { skipped: false; ok: true; id: string | null }
   | { skipped: false; ok: false; error: unknown };
 
+/**
+ * Sender address. Not a secret and not environment-specific — the domain is
+ * verified in Resend and will not change — so it lives here rather than as an
+ * env var that every deployment has to remember to set. EMAIL_FROM still
+ * overrides it if a different sender is ever needed.
+ */
+const DEFAULT_EMAIL_FROM = "Apollonia Events <rezervime@apolloniaevents.com>";
+
 let resendClient: Resend | null = null;
 let resendApiKey: string | null = null;
 
@@ -43,11 +51,11 @@ export async function sendEmail({
   replyTo,
 }: SendEmailInput): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
+  const from = process.env.EMAIL_FROM || DEFAULT_EMAIL_FROM;
   const trimmedReplyTo = replyTo?.trim();
 
-  if (!apiKey || !from) {
-    console.warn("Email skipped: RESEND_API_KEY or EMAIL_FROM is not configured.");
+  if (!apiKey) {
+    console.warn("Email skipped: RESEND_API_KEY is not configured.");
     return { skipped: true, ok: false, reason: "missing-email-config" };
   }
 

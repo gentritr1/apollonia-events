@@ -76,9 +76,14 @@ database.
 | `CLOUDINARY_CLOUD_NAME`, `_API_KEY`, `_API_SECRET` | gallery + admin upload  | uploads throw, gallery falls back to placeholders             |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`                | client upload widget    | falls back to the server value                                |
 | `CRON_SECRET`                                      | daily reminder cron     | **cron 401s silently every morning — no reminders sent**      |
-| `RESEND_API_KEY`, `EMAIL_FROM`                     | all transactional email | **every email silently skipped** — guests get no confirmation |
+| `RESEND_API_KEY`                                   | all transactional email | **every email silently skipped** — guests get no confirmation |
 | `ADMIN_NOTIFY_EMAIL`                               | owner notifications     | falls back to `ADMIN_EMAIL`                                   |
 | `NEXT_PUBLIC_SITE_URL`                             | metadata / OG images    | defaults to `https://apollonia.events`                        |
+
+`EMAIL_FROM` is optional: the sender defaults to
+`Apollonia Events <rezervime@apolloniaevents.com>` in `src/lib/email/client.ts`,
+since it is not a secret and the domain is verified. Set the env var only to
+override it.
 
 `DATABASE_URL` and `DIRECT_URL` must be the **same** Neon database, differing
 only by `-pooler` in the host. Pooled for the app (serverless opens and closes
