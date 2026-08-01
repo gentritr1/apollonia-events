@@ -46,8 +46,8 @@ export function SiteHeader() {
           aria-label={navCopy.homeAriaLabel}
           className="flex items-center gap-3"
         >
-          <LogoBadge className="size-9" />
-          <Logo className="text-xl sm:text-2xl" />
+          <LogoBadge className="size-11" />
+          <Logo variant="compact" className="text-lg" />
         </Link>
         <button
           type="button"
@@ -118,13 +118,20 @@ export function SiteHeader() {
             <LogoBadge
               priority
               className={cn(
-                // Hidden on the narrowest bar: badge + wordmark + CTA + menu
-                // leaves only ~6px before the Rezervo pill at 375px.
-                "hidden transition-[height,width] duration-300 sm:block",
-                scrolled ? "size-9" : "size-10",
+                // Now visible at every width: "APOLLONIA" in capitals is far
+                // narrower than "apolloniaevents", which bought back the room
+                // the badge needs on a 375px bar.
+                "transition-[height,width] duration-300",
+                scrolled ? "size-10" : "size-12",
               )}
             />
-            <Logo className="text-xl sm:text-2xl" />
+            {/* Below ~420px the badge, name, Rezervo pill and menu button do
+                not fit: measured overlap of 48px at 320 and 8px at 375. The
+                emblem stays and the name drops, not the other way round. */}
+            <Logo
+              variant="compact"
+              className="hidden text-lg min-[420px]:inline-flex sm:text-xl"
+            />
           </Link>
 
           {/* desktop nav */}

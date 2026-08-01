@@ -10,20 +10,42 @@ import { cn } from "@/lib/utils";
 export function Logo({
   className,
   columnClassName,
+  variant = "full",
 }: {
   className?: string;
   columnClassName?: string;
+  /**
+   * "compact" drops "events" and sets the name in spaced capitals, echoing the
+   * engraved wordmark inside the badge. Used where the badge sits beside it —
+   * the emblem already says "EVENTS APOLLONIA", so repeating it in lowercase
+   * read as two competing marks rather than one lockup.
+   */
+  variant?: "full" | "compact";
 }) {
+  if (variant === "compact") {
+    return (
+      <span
+        className={cn(
+          "logo-wordmark inline-flex select-none items-baseline font-serif uppercase leading-none tracking-[0.13em] text-ink",
+          className,
+        )}
+      >
+        apollon
+        <ColumnGlyph className={cn("text-aegean", columnClassName)} />a
+      </span>
+    );
+  }
+
   return (
     <span
       className={cn(
         "logo-wordmark inline-flex select-none items-baseline font-serif lowercase leading-none tracking-tight text-ink",
-        className
+        className,
       )}
     >
       apollon
-      <ColumnGlyph className={cn("text-aegean", columnClassName)} />
-      a<span className="text-ink-soft">events</span>
+      <ColumnGlyph className={cn("text-aegean", columnClassName)} />a
+      <span className="text-ink-soft">events</span>
     </span>
   );
 }
@@ -38,7 +60,7 @@ function ColumnGlyph({ className }: { className?: string }) {
       // ~0.82em tall, sat on the text baseline via the translate below
       className={cn(
         "mx-[0.03em] inline-block h-[0.9em] w-auto translate-y-[0.08em] self-baseline",
-        className
+        className,
       )}
       fill="currentColor"
     >

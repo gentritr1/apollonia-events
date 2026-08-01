@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  type CSSProperties,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from "react";
+import { type CSSProperties, useEffect, useId, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 import { CloudinaryFillImage } from "@/components/cloudinary/cloudinary-image";
@@ -34,7 +28,7 @@ export type GalleryLightboxItem =
 const wallLayouts = [
   {
     tileClassName: "sm:col-span-3 lg:col-span-4 aspect-[3/4]",
-    lightboxClassName: "aspect-[3/4] w-[min(54vh,calc(100vw-3.5rem))]",
+    lightboxClassName: "aspect-[3/4] w-[min(44dvh,calc(100vw-3.5rem))]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
   },
   {
@@ -44,7 +38,7 @@ const wallLayouts = [
   },
   {
     tileClassName: "sm:col-span-3 lg:col-span-3 aspect-[4/5]",
-    lightboxClassName: "aspect-[4/5] w-[min(58vh,calc(100vw-3.5rem))]",
+    lightboxClassName: "aspect-[4/5] w-[min(47dvh,calc(100vw-3.5rem))]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw",
   },
   {
@@ -54,7 +48,7 @@ const wallLayouts = [
   },
   {
     tileClassName: "sm:col-span-3 lg:col-span-4 aspect-[3/4]",
-    lightboxClassName: "aspect-[3/4] w-[min(54vh,calc(100vw-3.5rem))]",
+    lightboxClassName: "aspect-[3/4] w-[min(44dvh,calc(100vw-3.5rem))]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
   },
   {
@@ -64,12 +58,12 @@ const wallLayouts = [
   },
   {
     tileClassName: "sm:col-span-3 lg:col-span-3 aspect-[3/4]",
-    lightboxClassName: "aspect-[3/4] w-[min(54vh,calc(100vw-3.5rem))]",
+    lightboxClassName: "aspect-[3/4] w-[min(44dvh,calc(100vw-3.5rem))]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw",
   },
   {
     tileClassName: "sm:col-span-3 lg:col-span-3 aspect-[4/5]",
-    lightboxClassName: "aspect-[4/5] w-[min(58vh,calc(100vw-3.5rem))]",
+    lightboxClassName: "aspect-[4/5] w-[min(47dvh,calc(100vw-3.5rem))]",
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw",
   },
 ];
@@ -113,7 +107,7 @@ export function GalleryLightbox({
   const titleId = useId();
   const selectedIndex = selected?.index ?? null;
   const selectedItem =
-    selectedIndex === null ? null : items[selectedIndex] ?? null;
+    selectedIndex === null ? null : (items[selectedIndex] ?? null);
   const selectedLayout =
     selectedIndex === null
       ? wallLayouts[0]
@@ -125,7 +119,10 @@ export function GalleryLightbox({
         return current;
       }
 
-      return selectedState(items, (current.index - 1 + items.length) % items.length);
+      return selectedState(
+        items,
+        (current.index - 1 + items.length) % items.length,
+      );
     });
   }
 
@@ -143,7 +140,7 @@ export function GalleryLightbox({
     const nextSelected = selectedState(items, index);
     const transitionDocument = document as ViewTransitionDocument;
     const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
 
     if (!transitionDocument.startViewTransition || prefersReducedMotion) {
@@ -185,7 +182,10 @@ export function GalleryLightbox({
             return current;
           }
 
-          return selectedState(items, (current.index - 1 + items.length) % items.length);
+          return selectedState(
+            items,
+            (current.index - 1 + items.length) % items.length,
+          );
         });
         return;
       }
@@ -312,7 +312,7 @@ export function GalleryLightbox({
                 }
                 className={cn(
                   "relative overflow-hidden rounded-[0.35rem] bg-marble",
-                  selectedLayout.lightboxClassName
+                  selectedLayout.lightboxClassName,
                 )}
               >
                 {selectedItem.kind === "cloudinary" ? (
@@ -333,13 +333,13 @@ export function GalleryLightbox({
                       sizes="(max-width: 1024px) 92vw, 1100px"
                       className={cn(
                         "object-cover",
-                        !selected?.imageReady && "opacity-0"
+                        !selected?.imageReady && "opacity-0",
                       )}
                       onLoad={() => {
                         setSelected((current) =>
                           current && current.index === selectedIndex
                             ? { ...current, imageReady: true }
-                            : current
+                            : current,
                         );
                       }}
                     />
@@ -359,13 +359,16 @@ export function GalleryLightbox({
             </div>
 
             <figcaption className="mt-5 max-w-2xl text-center">
-              <p id={titleId} className="font-serif text-2xl text-ink sm:text-3xl">
+              <p
+                id={titleId}
+                className="font-serif text-2xl text-ink sm:text-3xl"
+              >
                 {itemTitle(selectedItem, selectedIndex ?? 0)}
               </p>
               <p className="mt-2 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-gold">
                 {galleryCopy.lightbox.count(
                   selectedIndex === null ? 1 : selectedIndex + 1,
-                  items.length
+                  items.length,
                 )}
               </p>
             </figcaption>
