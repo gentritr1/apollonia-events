@@ -23,3 +23,8 @@ Ancient Greek aesthetics (marble, Aegean blue, antique gold, ivory, olive), with
 ## Status
 
 Early scaffolding. Built step by step — see milestones in the project plan.
+
+## Operations
+
+See [RUNBOOK.md](RUNBOOK.md) for the live URLs, health check, monitors,
+environment variables, and what to do when something breaks.
