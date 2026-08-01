@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 import Link from "next/link";
 
@@ -13,7 +14,9 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    // Route-level failures were only ever logged to the console, so nothing
+    // reached Sentry unless the whole root layout died.
+    Sentry.captureException(error);
   }, [error]);
 
   return (
