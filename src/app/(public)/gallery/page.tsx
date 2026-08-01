@@ -50,7 +50,7 @@ export default async function GalleryPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 py-20">
+      <section className="mx-auto w-full max-w-7xl px-6 py-24">
         <div className="mb-10 flex flex-col justify-between gap-5 border-y border-gold/20 py-5 sm:flex-row sm:items-center">
           <p className="max-w-2xl text-pretty leading-relaxed text-ink-soft">
             {galleryCopy.wall.description}
@@ -67,10 +67,7 @@ export default async function GalleryPage() {
               ? galleryCopy.wall.withImages
               : galleryCopy.wall.withoutImages}
           </p>
-          <Link
-            href="/reserve"
-            className="btn btn-primary mt-8"
-          >
+          <Link href="/reserve" className="btn btn-primary mt-8">
             {galleryCopy.wall.cta}
           </Link>
         </div>

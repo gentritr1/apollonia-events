@@ -101,17 +101,42 @@ html[data-tone="dusk"] {
 
 html[data-tone="dusk"] .marble-wash {
   background:
-    radial-gradient(120% 80% at 15% 0%, rgba(255, 255, 255, 0.48), transparent 55%),
-    radial-gradient(100% 90% at 100% 100%, rgba(210, 198, 177, 0.56), transparent 60%),
+    radial-gradient(
+      120% 80% at 15% 0%,
+      rgba(255, 255, 255, 0.48),
+      transparent 55%
+    ),
+    radial-gradient(
+      100% 90% at 100% 100%,
+      rgba(210, 198, 177, 0.56),
+      transparent 60%
+    ),
     var(--color-ivory);
 }
 
 html[data-tone="dusk"] .aegean-arch {
   background:
-    radial-gradient(110% 70% at 50% -10%, rgba(241, 236, 224, 0.78), transparent 58%),
-    radial-gradient(82% 64% at 34% 24%, rgba(207, 181, 125, 0.34), transparent 64%),
-    radial-gradient(92% 78% at 76% 18%, rgba(44, 92, 107, 0.42), transparent 62%),
-    linear-gradient(180deg, var(--color-marble) 0%, #899f96 42%, var(--color-aegean-deep) 100%);
+    radial-gradient(
+      110% 70% at 50% -10%,
+      rgba(241, 236, 224, 0.78),
+      transparent 58%
+    ),
+    radial-gradient(
+      82% 64% at 34% 24%,
+      rgba(207, 181, 125, 0.34),
+      transparent 64%
+    ),
+    radial-gradient(
+      92% 78% at 76% 18%,
+      rgba(44, 92, 107, 0.42),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      var(--color-marble) 0%,
+      #899f96 42%,
+      var(--color-aegean-deep) 100%
+    );
 }
 
 @layer base {
@@ -129,7 +154,10 @@ body {
 }
 
 /* Headings default to the serif display face with calm, airy leading. */
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-serif);
   font-weight: 500;
   line-height: 1.08;
@@ -155,6 +183,7 @@ h1, h2, h3, h4 {
   gap: 0.5rem;
   border-radius: 9999px;
   padding-inline: 2rem;
+  white-space: nowrap;
   font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.025em;
@@ -204,8 +233,16 @@ h1, h2, h3, h4 {
   isolation: isolate;
   overflow: hidden;
   background:
-    radial-gradient(120% 80% at 15% 0%, rgba(255, 255, 255, 0.55), transparent 55%),
-    radial-gradient(100% 90% at 100% 100%, rgba(221, 213, 196, 0.5), transparent 60%),
+    radial-gradient(
+      120% 80% at 15% 0%,
+      rgba(255, 255, 255, 0.55),
+      transparent 55%
+    ),
+    radial-gradient(
+      100% 90% at 100% 100%,
+      rgba(221, 213, 196, 0.5),
+      transparent 60%
+    ),
     var(--color-ivory);
 }
 
@@ -347,13 +384,41 @@ html[data-tone="dusk"] .footer-dusk-line {
   pointer-events: none;
   opacity: 0;
   background-image:
-    radial-gradient(circle at 12% 28%, var(--color-gold-soft) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 24% 62%, var(--color-gold-soft) 0 1px, transparent 1.6px),
-    radial-gradient(circle at 42% 18%, var(--color-gold-soft) 0 1.25px, transparent 1.9px),
-    radial-gradient(circle at 58% 72%, var(--color-gold-soft) 0 1.4px, transparent 2px),
-    radial-gradient(circle at 72% 35%, var(--color-gold-soft) 0 1px, transparent 1.7px),
-    radial-gradient(circle at 86% 58%, var(--color-gold-soft) 0 1.35px, transparent 2px),
-    radial-gradient(circle at 91% 22%, var(--color-gold-soft) 0 1px, transparent 1.7px);
+    radial-gradient(
+      circle at 12% 28%,
+      var(--color-gold-soft) 0 1.5px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 24% 62%,
+      var(--color-gold-soft) 0 1px,
+      transparent 1.6px
+    ),
+    radial-gradient(
+      circle at 42% 18%,
+      var(--color-gold-soft) 0 1.25px,
+      transparent 1.9px
+    ),
+    radial-gradient(
+      circle at 58% 72%,
+      var(--color-gold-soft) 0 1.4px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 72% 35%,
+      var(--color-gold-soft) 0 1px,
+      transparent 1.7px
+    ),
+    radial-gradient(
+      circle at 86% 58%,
+      var(--color-gold-soft) 0 1.35px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 91% 22%,
+      var(--color-gold-soft) 0 1px,
+      transparent 1.7px
+    );
 }
 
 html[data-tone="dusk"] .dusk-stars::after {
@@ -374,6 +439,27 @@ html[data-tone="dusk"] .dusk-stars::after {
   outline-offset: 3px;
 }
 
+/* Headings receive focus only programmatically (wizard step changes); the
+   scroll movement is the indicator, so no ring. Unlayered on purpose — the
+   rule above would beat any layered utility. */
+:where(h1, h2, h3)[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
+/* Keyboard skip link: parked above the viewport until focused. Unlayered so
+   it wins over the .btn sizing it borrows (layered utilities would lose). */
+.skip-link {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 200;
+  transform: translateY(calc(-100% - 1.5rem));
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 .meander-rule,
 .wave-rule {
   overflow: visible;
@@ -383,10 +469,79 @@ html[data-tone="dusk"] .dusk-stars::after {
   position: relative;
   isolation: isolate;
   background:
-    radial-gradient(110% 70% at 50% -10%, rgba(246, 242, 233, 0.84), transparent 58%),
-    radial-gradient(82% 64% at 34% 24%, rgba(196, 168, 114, 0.34), transparent 64%),
-    radial-gradient(92% 78% at 76% 18%, rgba(62, 127, 145, 0.36), transparent 62%),
-    linear-gradient(180deg, var(--color-marble) 0%, #98a895 42%, var(--color-aegean-deep) 100%);
+    radial-gradient(
+      110% 70% at 50% -10%,
+      rgba(246, 242, 233, 0.84),
+      transparent 58%
+    ),
+    radial-gradient(
+      82% 64% at 34% 24%,
+      rgba(196, 168, 114, 0.34),
+      transparent 64%
+    ),
+    radial-gradient(
+      92% 78% at 76% 18%,
+      rgba(62, 127, 145, 0.36),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      var(--color-marble) 0%,
+      #98a895 42%,
+      var(--color-aegean-deep) 100%
+    );
+}
+
+/* Dawn — pale rosy-ivory top light melting into a cool, soft aegean lower half. */
+html[data-daypart="dawn"] .aegean-arch {
+  background:
+    radial-gradient(
+      110% 70% at 50% -10%,
+      rgba(247, 236, 232, 0.86),
+      transparent 58%
+    ),
+    radial-gradient(
+      82% 64% at 34% 24%,
+      rgba(200, 176, 150, 0.26),
+      transparent 64%
+    ),
+    radial-gradient(
+      92% 78% at 76% 22%,
+      rgba(62, 127, 145, 0.3),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      var(--color-ivory) 0%,
+      #a9bfc0 46%,
+      var(--color-aegean) 100%
+    );
+}
+
+/* Golden hour — warm amber-gold glow dominant up top, melting into aegean-deep. */
+html[data-daypart="golden"] .aegean-arch {
+  background:
+    radial-gradient(
+      110% 74% at 50% -8%,
+      rgba(224, 178, 108, 0.66),
+      transparent 60%
+    ),
+    radial-gradient(
+      86% 66% at 32% 26%,
+      rgba(196, 168, 114, 0.46),
+      transparent 64%
+    ),
+    radial-gradient(
+      92% 78% at 78% 20%,
+      rgba(44, 92, 107, 0.34),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      var(--color-gold-soft) 0%,
+      #9a7d55 46%,
+      var(--color-aegean-deep) 100%
+    );
 }
 
 .aegean-arch::before {
@@ -395,7 +550,11 @@ html[data-tone="dusk"] .dusk-stars::after {
   inset: -12%;
   z-index: -1;
   background:
-    radial-gradient(90% 58% at 52% 18%, rgba(246, 242, 233, 0.44), transparent 62%),
+    radial-gradient(
+      90% 58% at 52% 18%,
+      rgba(246, 242, 233, 0.44),
+      transparent 62%
+    ),
     radial-gradient(70% 54% at 72% 62%, rgba(28, 61, 71, 0.42), transparent 68%);
   opacity: 0.75;
 }
@@ -404,9 +563,24 @@ html[data-tone="dusk"] .dusk-stars::after {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background:
-    linear-gradient(100deg, rgba(246, 242, 233, 0.96) 0%, rgba(228, 204, 147, 0.62) 48%, rgba(28, 61, 71, 0.96) 100%),
-    var(--color-ivory);
+  /* Below lg the timeline stacks into 1–2 light columns whose text stays dark
+     (text-ink), so the section reads as a plain ivory band — the dark gold→teal
+     gradient only appears at lg+, where the 4-column layout and the lg:text-ivory
+     items are designed to sit on it. */
+  background: var(--color-ivory);
+}
+
+@media (min-width: 64rem) {
+  .day-timeline {
+    background:
+      linear-gradient(
+        100deg,
+        rgba(246, 242, 233, 0.96) 0%,
+        rgba(228, 204, 147, 0.62) 48%,
+        rgba(28, 61, 71, 0.96) 100%
+      ),
+      var(--color-ivory);
+  }
 }
 
 .timeline-dot {
@@ -424,6 +598,50 @@ html[data-tone="dusk"] .dusk-stars::after {
 
 .epigraph-quote {
   letter-spacing: 0.015em;
+}
+
+/* Free-Saturday availability chips: a quiet hover warm-up. The 1px lift lives
+   in the no-preference block; border-gold + text-aegean already come from
+   .btn-quiet:hover, so only the ivory fill is added here. */
+.date-chip:hover {
+  border-color: var(--color-gold);
+  background-color: var(--color-ivory);
+}
+
+/* Occasion-tinted invitation preview. Each tone maps to a single accent custom
+   property; the accents (meander stroke, gold micro-labels/overline, seal and
+   the outer gold hairline) consume it. Every accent value is AA (>=4.5:1) on
+   the #fbf9f3 card. Default (no .invitation-tinted): original gold appearance. */
+.invitation-tone-aegean {
+  --invitation-accent: var(--color-aegean); /* #2c5c6b — 7.0:1 */
+}
+
+.invitation-tone-olive {
+  --invitation-accent: var(--color-olive); /* #6f7245 — 4.8:1 */
+}
+
+.invitation-tone-gold {
+  --invitation-accent: var(--color-gold-text); /* #8a6b3c — 4.7:1 */
+}
+
+.invitation-tone-marble {
+  --invitation-accent: var(--color-ink-soft); /* #475158 — 7.7:1 */
+}
+
+.invitation-tinted .meander-line {
+  stroke: var(--invitation-accent);
+}
+
+.invitation-tinted :is(.text-gold, .overline) {
+  color: var(--invitation-accent);
+}
+
+.invitation-tinted .invitation-seal {
+  color: var(--invitation-accent, var(--color-gold-soft));
+}
+
+.invitation-tinted {
+  border-color: color-mix(in srgb, var(--invitation-accent) 35%, transparent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -483,14 +701,18 @@ html[data-tone="dusk"] .dusk-stars::after {
     transition-delay: 400ms;
   }
 
-  .meander-rule.draw-ready .meander-line {
-    stroke-dasharray: 90;
-    stroke-dashoffset: 90;
-    transition: stroke-dashoffset 1200ms ease-out;
+  /* A meander inside a .reveal container draws itself left-to-right, matching
+     temple-line's dasharray technique. Static (fully drawn) otherwise. */
+  .reveal.reveal-ready .meander-line {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
   }
 
-  .meander-rule.draw-ready.is-drawn .meander-line {
+  /* Transition lives only on the drawn state so the initial jump to the
+     undrawn position (when reveal-ready lands at hydration) is instant. */
+  .reveal.reveal-ready.is-visible .meander-line {
     stroke-dashoffset: 0;
+    transition: stroke-dashoffset 700ms ease-out 150ms;
   }
 
   .heritage-band.reveal-ready .coastline-stroke {
@@ -590,6 +812,12 @@ html[data-tone="dusk"] .dusk-stars::after {
     will-change: transform;
   }
 
+  /* The engraved seal "presses" onto a received invitation, once, on mount. */
+  .invitation-seal {
+    transform-origin: center;
+    animation: seal-press 520ms ease-out both;
+  }
+
   .day-timeline.reveal-ready .timeline-line {
     transform: scaleX(0);
     transform-origin: left;
@@ -628,6 +856,41 @@ html[data-tone="dusk"] .dusk-stars::after {
     stroke-dashoffset: 1;
   }
 
+  /* Wizard step change: the incoming (now-visible) fieldset fades + rises once.
+     Gated on form[data-stepped] so it never fires on first paint; toggling the
+     `hidden` attribute re-arms the animation each time a step becomes visible. */
+  form[data-stepped] .step-panel:not([hidden]) {
+    animation: step-in 320ms ease-out;
+  }
+
+  /* Availability chip lift, transition-only. Restates the .btn colour
+     transitions so the shorthand doesn't drop them, and adds transform. */
+  .date-chip {
+    transition:
+      background-color 180ms ease-out,
+      border-color 180ms ease-out,
+      color 180ms ease-out,
+      transform 180ms ease-out;
+  }
+
+  .date-chip:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Occasion tint glides rather than snaps when the picked occasion changes. */
+  .invitation-card {
+    transition: border-color 400ms ease-out;
+  }
+
+  .invitation-card .meander-line {
+    transition: stroke 400ms ease-out;
+  }
+
+  .invitation-card :is(.text-gold, .overline),
+  .invitation-card .invitation-seal {
+    transition: color 400ms ease-out;
+  }
+
   ::view-transition-group(site-header) {
     z-index: 100;
     animation: none;
@@ -641,12 +904,8 @@ html[data-tone="dusk"] .dusk-stars::after {
     animation: none;
   }
 
-  ::view-transition-old(.public-page-crossfade) {
-    animation: page-fade-out 250ms ease-out both;
-  }
-
-  ::view-transition-new(.public-page-crossfade) {
-    animation: page-fade-in 250ms ease-out both;
+  .page-enter {
+    animation: page-enter 400ms ease-out both;
   }
 
   ::view-transition-group(gallery-active-image) {
@@ -669,11 +928,52 @@ html[data-tone="dusk"] .dusk-stars::after {
     transition-duration: 0.001ms !important;
   }
 
+  /* The scroll-tracked sundial dot only makes sense with motion. */
+  .day-timeline-gnomon {
+    display: none;
+  }
+
   ::view-transition-old(*),
   ::view-transition-new(*),
   ::view-transition-group(*) {
     animation-duration: 0s !important;
     animation-delay: 0s !important;
+  }
+}
+
+/* Printing the received invitation (success screen "Printo ftesën"). Hide the
+   whole chrome — header, footer, nav, success text card, FAQ, chips, dev
+   overlays — and print only the invitation card, centered and full-width up to
+   ~160mm. print-color-adjust keeps the ivory fill, gold hairlines and occasion
+   tint intact; the seal and meander are inline SVG and print with it. */
+@page {
+  margin: 16mm;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .invitation-card,
+  .invitation-card * {
+    visibility: visible;
+  }
+
+  .invitation-card {
+    position: absolute;
+    inset: 0 auto auto 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 160mm;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .invitation-card * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
 
@@ -718,6 +1018,13 @@ html[data-tone="dusk"] .dusk-stars::after {
   }
 }
 
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+  }
+}
+
 @keyframes epigraph-fade {
   from {
     opacity: 0;
@@ -730,15 +1037,15 @@ html[data-tone="dusk"] .dusk-stars::after {
   }
 }
 
-@keyframes page-fade-out {
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes page-fade-in {
+@keyframes page-enter {
   from {
     opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -749,5 +1056,22 @@ html[data-tone="dusk"] .dusk-stars::after {
 
   to {
     opacity: 0.42;
+  }
+}
+
+@keyframes seal-press {
+  0% {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(0.985);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }

@@ -15,7 +15,7 @@ export const reservationSchema = z.object({
     .min(1, reserveCopy.validation.dateRequired)
     .refine(
       (v) => !Number.isNaN(Date.parse(v)),
-      reserveCopy.validation.dateInvalid
+      reserveCopy.validation.dateInvalid,
     )
     .refine((v) => {
       const d = new Date(`${v}T00:00:00`);
@@ -36,7 +36,7 @@ export const reservationSchema = z.object({
     .regex(/^\d+$/, reserveCopy.validation.guestWhole)
     .refine((v) => {
       const n = Number(v);
-      return n >= 1 && n <= 120;
+      return n >= 1 && n <= 60;
     }, reserveCopy.validation.guestRange),
   name: z.string().trim().min(2, reserveCopy.validation.nameRequired).max(120),
   phone: z.string().trim().min(6, reserveCopy.validation.phoneRequired).max(40),

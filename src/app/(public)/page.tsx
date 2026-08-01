@@ -10,8 +10,15 @@ import { CloudinaryGalleryTile } from "@/components/public/cloudinary-gallery-ti
 import { EpigraphTestimonials } from "@/components/public/epigraph-testimonials";
 import { Reveal } from "@/components/public/reveal";
 import { HeroArch } from "@/components/public/hero-arch";
+import { DayTimelineGnomon } from "@/components/public/day-timeline-gnomon";
 import { UpcomingFreeDatesStrip } from "@/components/public/upcoming-free-dates";
-import { eventTypes, galleryItems, homeCopy, venueFeatures } from "@/lib/content";
+import {
+  eventCardCopy,
+  eventTypes,
+  galleryItems,
+  homeCopy,
+  venueFeatures,
+} from "@/lib/content";
 import { db } from "@/lib/db";
 import { getUpcomingFreeDates } from "@/server/reservations";
 
@@ -35,30 +42,27 @@ export default async function Home() {
     <>
       {/* hero */}
       <section className="marble-wash">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-x-16 gap-y-16 px-6 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:py-28">
-          <div className="hero-sequence max-w-xl text-center lg:text-left">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-x-16 gap-y-12 px-6 py-14 sm:gap-y-16 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:py-28">
+          <div className="hero-sequence mx-auto max-w-xl text-center lg:mx-0 lg:text-left">
             <p className="overline mx-auto mb-6 max-w-xs text-[0.68rem] tracking-[0.2em] sm:max-w-none sm:text-xs sm:tracking-[var(--tracking-overline)] lg:mx-0">
               {homeCopy.hero.overline}
             </p>
-            <MeanderRule units={5} className="mx-auto mb-9 opacity-80 lg:mx-0" />
-            <h1 className="mx-auto max-w-[10ch] text-balance text-4xl leading-[1.04] text-ink sm:max-w-none sm:text-6xl lg:mx-0 lg:text-7xl">
+            <MeanderRule
+              units={5}
+              className="mx-auto mb-6 opacity-80 sm:mb-9 lg:mx-0"
+            />
+            <h1 className="mx-auto text-balance text-4xl leading-[1.04] text-ink sm:text-6xl lg:mx-0 lg:text-7xl">
               {homeCopy.hero.titleLead}
               <span className="text-aegean"> {homeCopy.hero.titleAccent}</span>.
             </h1>
-            <p className="mx-auto mt-8 max-w-md text-pretty text-lg leading-relaxed text-ink-soft lg:mx-0">
+            <p className="mx-auto mt-6 max-w-md text-pretty text-lg leading-relaxed text-ink-soft sm:mt-8 lg:mx-0">
               {homeCopy.hero.description}
             </p>
-            <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row lg:items-start">
-              <Link
-                href="/reserve"
-                className="btn btn-primary"
-              >
+            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:mt-12 sm:flex-row lg:items-start lg:justify-start">
+              <Link href="/reserve" className="btn btn-primary">
                 {homeCopy.hero.primaryCta}
               </Link>
-              <Link
-                href="/gallery"
-                className="btn btn-quiet link-arrow"
-              >
+              <Link href="/gallery" className="btn btn-quiet link-arrow">
                 {homeCopy.hero.secondaryCta}
               </Link>
             </div>
@@ -107,14 +111,27 @@ export default async function Home() {
           />
           <ol className="relative mt-16 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <span className="timeline-line absolute left-0 right-0 top-[1.15rem] hidden h-px bg-gradient-to-r from-gold/35 via-gold to-ivory/60 lg:block" />
+            <DayTimelineGnomon />
             {homeCopy.day.timeline.map((item, index) => (
               <li
                 key={item.time}
                 className="timeline-item relative"
-                style={{ "--timeline-delay": `${index * 260 + 220}ms` } as CSSProperties}
+                style={
+                  {
+                    "--timeline-delay": `${index * 260 + 220}ms`,
+                  } as CSSProperties
+                }
               >
                 <span className="timeline-dot relative z-10 block size-3 rounded-full bg-gold" />
-                <p className="mt-7 font-serif text-3xl italic leading-none text-gold-soft">
+                <p
+                  className={`mt-7 font-serif text-3xl leading-none italic text-gold-soft ${
+                    // The two evening items sit on the dark teal end of the lg
+                    // gradient; plain gold-soft fails contrast there, so lift the
+                    // numeral to an ivory-mixed gold at lg only (light sides keep
+                    // gold-soft). See globals.css .day-timeline.
+                    index >= 2 ? "lg:text-[#efe4c4]" : ""
+                  }`}
+                >
                   {item.time}
                 </p>
                 <h3 className={`mt-4 text-2xl ${item.tone}`}>{item.title}</h3>
@@ -144,6 +161,8 @@ export default async function Home() {
                 title={e.title}
                 description={e.description}
                 tone={e.tone}
+                href={`/reserve?occasion=${e.slug}`}
+                cta={eventCardCopy.cta}
               />
             ))}
           </div>
@@ -156,7 +175,11 @@ export default async function Home() {
       </Reveal>
 
       {/* gallery preview */}
-      <Reveal as="section" className="mx-auto w-full max-w-6xl px-6 py-24" stagger>
+      <Reveal
+        as="section"
+        className="mx-auto w-full max-w-6xl px-6 py-24"
+        stagger
+      >
         <div className="flex flex-col items-end justify-between gap-6 sm:flex-row">
           <SectionHeading
             marker="Δ΄"
@@ -184,14 +207,16 @@ export default async function Home() {
                   priority={index === 0}
                 />
               ))
-            : galleryItems.slice(0, 3).map((item) => (
-                <GalleryTile
-                  key={item.caption}
-                  caption={item.caption}
-                  tone={item.tone}
-                  className="aspect-[4/5]"
-                />
-              ))}
+            : galleryItems
+                .slice(0, 3)
+                .map((item) => (
+                  <GalleryTile
+                    key={item.caption}
+                    caption={item.caption}
+                    tone={item.tone}
+                    className="aspect-[4/5]"
+                  />
+                ))}
         </div>
       </Reveal>
 
@@ -205,10 +230,7 @@ export default async function Home() {
           <p className="mx-auto mt-5 max-w-lg text-pretty leading-relaxed text-ivory/70">
             {homeCopy.cta.description}
           </p>
-          <Link
-            href="/reserve"
-            className="btn btn-gold mt-10"
-          >
+          <Link href="/reserve" className="btn btn-gold mt-10">
             {homeCopy.cta.link}
           </Link>
         </div>

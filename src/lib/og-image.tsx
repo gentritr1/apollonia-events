@@ -209,7 +209,7 @@ function OgCard({ title }: { title: string }) {
             color: "#8a6b3c",
           }}
         >
-          Një vend · një ngjarje
+          Evente private · Gjilan
         </div>
       </div>
     </div>

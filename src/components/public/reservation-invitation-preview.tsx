@@ -1,8 +1,9 @@
 import { format } from "date-fns";
 import { sq } from "date-fns/locale";
 
+import { InvitationSeal } from "@/components/public/invitation-seal";
 import { MeanderRule } from "@/components/public/meander-rule";
-import { reserveCopy } from "@/lib/content";
+import { eventTypes, reserveCopy } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 type ReservationInvitationPreviewProps = {
@@ -42,9 +43,9 @@ function formatInvitationDate(dateKey: string | undefined) {
   const date = parseDateKey(dateKey);
   if (!date) return null;
 
-  return `e ${format(date, "EEEE, d MMMM yyyy", { locale: sq }).toLocaleLowerCase(
-    "sq-AL"
-  )}`;
+  return `e ${format(date, "EEEE, d MMMM yyyy", {
+    locale: sq,
+  }).toLocaleLowerCase("sq-AL")}`;
 }
 
 function PreviewValue({
@@ -59,7 +60,9 @@ function PreviewValue({
   const cleaned = value?.trim();
 
   if (!cleaned) {
-    return <span className={cn("text-ink-soft/60", className)}>{fallback}</span>;
+    return (
+      <span className={cn("text-ink-soft/60", className)}>{fallback}</span>
+    );
   }
 
   return <span className={className}>{cleaned}</span>;
@@ -88,6 +91,12 @@ export function ReservationInvitationPreview({
     .join(" / ");
   const cleanedNotes = notes?.trim();
 
+  // The chosen occasion quietly tints the card's accents (meander, micro-labels,
+  // seal, gold hairline) to its tone. No occasion → default gold appearance.
+  const tone = occasion?.trim()
+    ? eventTypes.find((event) => event.title === occasion.trim())?.tone
+    : undefined;
+
   return (
     <article
       aria-label={
@@ -96,8 +105,9 @@ export function ReservationInvitationPreview({
           : reserveCopy.invitation.draftAriaLabel
       }
       className={cn(
-        "relative overflow-hidden rounded-t-[999px] rounded-b-xl border border-gold/35 bg-[#fbf9f3] px-7 pt-16 pb-8 text-center text-ink shadow-inner",
-        className
+        "invitation-card relative overflow-hidden rounded-t-[999px] rounded-b-xl border border-gold/35 bg-[#fbf9f3] px-7 pt-16 pb-8 text-center text-ink shadow-inner",
+        tone && `invitation-tinted invitation-tone-${tone}`,
+        className,
       )}
     >
       <div
@@ -106,6 +116,9 @@ export function ReservationInvitationPreview({
       />
 
       <div className="relative">
+        {state === "received" ? (
+          <InvitationSeal className="mx-auto mb-6 size-[76px]" />
+        ) : null}
         <p className="overline mb-5">
           {state === "received"
             ? reserveCopy.invitation.receivedOverline

@@ -7,13 +7,20 @@ export const manualEventTypes = [
   { slug: "corporate", title: "Corporate & Cultural" },
 ] as const;
 
-export const manualTimeSlots = [
-  { value: "11:00", label: "Late morning · 11:00" },
-  { value: "13:00", label: "Luncheon · 13:00" },
-  { value: "16:00", label: "Afternoon · 16:00" },
-  { value: "18:30", label: "Evening · 18:30" },
-  { value: "20:00", label: "Dinner · 20:00" },
-] as const;
+// Half-hour start times 10:00–22:00 inclusive (25 options), matching the public
+// reservation form. Labels are the plain "HH:MM" value.
+function buildManualTimeSlots(): { value: string; label: string }[] {
+  const slots: { value: string; label: string }[] = [];
+  for (let minutes = 10 * 60; minutes <= 22 * 60; minutes += 30) {
+    const value = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(
+      minutes % 60,
+    ).padStart(2, "0")}`;
+    slots.push({ value, label: value });
+  }
+  return slots;
+}
+
+export const manualTimeSlots = buildManualTimeSlots();
 
 export const manualReservationStatusValues = [
   "PENDING",
@@ -53,8 +60,8 @@ export const manualReservationSchema = z.object({
     .regex(/^\d+$/, "Use a whole number.")
     .refine((v) => {
       const n = Number(v);
-      return n >= 1 && n <= 120;
-    }, "Between 1 and 120 guests."),
+      return n >= 1 && n <= 60;
+    }, "Between 1 and 60 guests."),
   name: z.string().trim().min(2, "Please share your name.").max(120),
   phone: z.string().trim().min(6, "Please share a contact number.").max(40),
   email: z.string().trim().email("Please enter a valid email."),

@@ -5,7 +5,7 @@ import { MeanderRule } from "@/components/public/meander-rule";
 import { SectionHeading } from "@/components/public/section-heading";
 import { EventCard } from "@/components/public/event-card";
 import { Reveal } from "@/components/public/reveal";
-import { eventTypes, eventsCopy } from "@/lib/content";
+import { eventCardCopy, eventTypes, eventsCopy } from "@/lib/content";
 
 export const metadata: Metadata = eventsCopy.metadata;
 
@@ -33,6 +33,8 @@ export default function EventsPage() {
               title={e.title}
               description={e.description}
               tone={e.tone}
+              href={`/reserve?occasion=${e.slug}`}
+              cta={eventCardCopy.cta}
             />
           ))}
         </div>

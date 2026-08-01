@@ -8,6 +8,11 @@ export function EpigraphTestimonials() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
+    // A single entry (e.g. the inaugural-event epigraph) never rotates.
+    if (testimonialsCopy.length <= 1) {
+      return;
+    }
+
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mediaQuery.matches) {
       return;

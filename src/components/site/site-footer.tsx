@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/brand/logo";
+import { LogoBadge } from "@/components/brand/logo-badge";
 import { MeanderRule } from "@/components/public/meander-rule";
 import { WaveRule } from "@/components/public/wave-rule";
 import { brandName, contactCopy, footerCopy, navCopy } from "@/lib/content";
@@ -13,6 +14,7 @@ export function SiteFooter() {
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* brand */}
           <div className="lg:col-span-2">
+            <LogoBadge variant="footer" className="mb-6 size-18" />
             <Logo className="text-2xl" />
             <p className="mt-5 max-w-xs text-pretty text-sm leading-relaxed text-ink-soft">
               {footerCopy.description}
@@ -63,15 +65,20 @@ export function SiteFooter() {
               <p>
                 {footerCopy.byAppointment}
                 <br />
-                {footerCopy.coast}
+                {footerCopy.street}
+                <br />
+                {footerCopy.cityLine}
               </p>
-              <p>
-                <a
-                  href="mailto:hello@apollonia.events"
-                  className="transition-colors hover:text-aegean"
-                >
-                  hello@apollonia.events
-                </a>
+              <p className="space-y-1">
+                {footerCopy.phones.map((phone) => (
+                  <a
+                    key={phone.href}
+                    href={phone.href}
+                    className="block transition-colors hover:text-aegean"
+                  >
+                    {phone.label}
+                  </a>
+                ))}
               </p>
               <p>
                 <a
@@ -81,6 +88,16 @@ export function SiteFooter() {
                   rel="noreferrer"
                 >
                   {contactCopy.whatsappLabel}
+                </a>
+              </p>
+              <p>
+                <a
+                  href={footerCopy.instagramHref}
+                  className="link-arrow text-aegean transition-colors hover:text-aegean-deep"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {footerCopy.instagramLabel}
                 </a>
               </p>
             </address>

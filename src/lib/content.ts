@@ -8,7 +8,7 @@ export const publicMetadata = {
   root: {
     title: "Evente private — Apollonia Events",
     description:
-      "Një vend i qetë për dasma, darka private dhe festime. Rezervoni datën tuaj te Apollonia Events.",
+      "Një vend i qetë për dasma, darka private dhe festime në Gjilan. Rezervoni datën tuaj te Apollonia Events.",
   },
 } as const;
 
@@ -17,7 +17,7 @@ export type UpcomingFreeDate = {
   label: string;
 };
 
-export const WHATSAPP_PHONE_NUMBER = "355000000000";
+export const WHATSAPP_PHONE_NUMBER = "38344376237";
 
 const whatsappGreeting =
   "Përshëndetje Apollonia, dëshiroj të pyes për një datë eventi.";
@@ -25,7 +25,7 @@ const whatsappGreeting =
 export const contactCopy = {
   whatsappLabel: "Shkruani në WhatsApp",
   whatsappHref: `https://wa.me/${WHATSAPP_PHONE_NUMBER}?text=${encodeURIComponent(
-    whatsappGreeting
+    whatsappGreeting,
   )}`,
 } as const;
 
@@ -33,8 +33,7 @@ export const availabilityCopy = {
   overline: "Disponueshmëria",
   homePrefix: "Të shtunat më të afërta të lira",
   reservePrompt: "Zgjidhni një të shtunë të lirë",
-  unavailable:
-    "Datat më të afërta do t'i konfirmojmë personalisht me ju.",
+  unavailable: "Datat më të afërta do t'i konfirmojmë personalisht me ju.",
 } as const;
 
 export const navLinks = [
@@ -86,31 +85,38 @@ export const eventTypes = [
   },
 ];
 
+export const eventCardCopy = {
+  cta: "Rezervoni këtë rast",
+} as const;
+
 export const venueFeatures = [
   {
-    title: "Deri në 120 të ftuar",
-    detail: "Salla dhe tarraca përshtaten nga tryeza intime te pritja e plotë.",
+    title: "Deri në 60 të ftuar",
+    detail:
+      "Rreth 30–35 të ulur në tryeza; deri në 60 në pritje në këmbë.",
   },
   {
-    title: "Sallë e brendshme & tarracë ullinjsh",
-    detail: "Interierë mermeri që hapen drejt ulëseve të hijëzuara jashtë.",
+    title: "Një sallë e vetme, e gjerë",
+    detail: "Rreth 60 m² që rikompozohen nga ceremonia te darka dhe vallëzimi.",
   },
   {
-    title: "Kuzhinë në vend",
-    detail: "Menu sezonale dhe përzgjedhje pijesh, të përgatitura në shtëpi.",
+    title: "Kateringu, zgjedhja juaj",
+    detail:
+      "Ju sillni kateringun dhe pijet që doni — salla dhe ekipi përshtaten.",
   },
   {
-    title: "Mikpritës i përkushtuar",
-    detail: "Një person kontakti, i vëmendshëm ndaj çdo hollësie të ditës.",
+    title: "Zërim & përkujdesje",
+    detail:
+      "Sistem zërimi për DJ dhe muzikën tuaj; një person përgjegjës ndjek orarin dhe rezervimin tuaj.",
   },
 ];
 
 export const galleryItems = [
-  { caption: "Tarraca në muzg", tone: "aegean" as Tone },
-  { caption: "Një tryezë e gjatë", tone: "marble" as Tone },
-  { caption: "Oborri i ullinjve", tone: "olive" as Tone },
-  { caption: "Salla e mermerit, gati për darkë", tone: "marble" as Tone },
-  { caption: "Ceremoni në orën e artë", tone: "gold" as Tone },
+  { caption: "Salla në muzg", tone: "aegean" as Tone },
+  { caption: "Banaku i mermertë, bardh e zi", tone: "marble" as Tone },
+  { caption: "Drita pranë dritareve", tone: "olive" as Tone },
+  { caption: "Një tryezë e gjatë, gati për darkë", tone: "marble" as Tone },
+  { caption: "Tavani — vepër arti", tone: "gold" as Tone },
   { caption: "Pritje në mbrëmje", tone: "aegean" as Tone },
 ];
 
@@ -118,14 +124,14 @@ export const homeCopy = {
   metadata: {
     title: "Evente private — Apollonia Events",
     description:
-      "Një vend i qetë, i punuar me kujdes, për dasma, darka private dhe festime pranë Adriatikut.",
+      "Një vend i qetë, i punuar me kujdes, për dasma, darka private dhe festime në Gjilan.",
   },
   hero: {
-    overline: "Evente private · Buzë Adriatikut",
+    overline: "Evente private · Gjilan",
     titleLead: "Ku çdo mbledhje bëhet",
     titleAccent: "ngjarje",
     description:
-      "Një vend i qetë, i punuar me kujdes, për dasma, darka private dhe festime. Rezervohet për një ditë të vetme; çdo hollësi pritet me dorë.",
+      "Një vend i qetë, i punuar me kujdes, për dasma, darka private dhe festime. Çdo hollësi pritet me dorë.",
     primaryCta: "Rezervoni një datë",
     secondaryCta: "Zbuloni vendin",
     venueAriaLabel: "Vendi i Apollonia Events",
@@ -134,7 +140,7 @@ export const homeCopy = {
     overline: "Vendi",
     title: "Një shtëpi e ngritur për mbledhje",
     description:
-      "Apollonia i jepet një ngjarjeje të vetme në ditë. Interierët e mermerit hapen drejt tarracës me ullinj; drita lëviz nga qetësia e mëngjesit te muzgu i artë. Asgjë nuk nxitohet dhe asgjë nuk ndahet me të tjerë.",
+      "Një sallë e vetme që merr formë me orët — drita lëviz nga dritaret te muzgu i artë, nën një tavan të punuar si vepër arti. Asgjë nuk nxitohet; çdo orë e ditës gjen formën e vet.",
   },
   day: {
     overline: "Dita",
@@ -143,30 +149,30 @@ export const homeCopy = {
       "Një kalendar privat e lejon vendin të ndjekë ngjarjen nga përgatitja e qetë deri te kënga e fundit.",
     timeline: [
       {
-        time: "11:00",
+        time: "10:00",
         title: "Përgatitjet",
-        detail: "Dhomat mbushen me lule, pëlhura dhe ritmin e ardhjes.",
+        detail: "Salla pastrohet e rregullohet: tryezat, banaku dhe dekori që sillni ju.",
         tone: "text-ink",
         muted: "text-ink-soft",
       },
       {
         time: "17:00",
-        title: "Ceremonia",
-        detail: "Oborri i mbledh të gjithë në një dritë të vonë.",
+        title: "Ardhja e mysafirëve",
+        detail: "Salla i mbledh të ftuarit ndërsa drita zbutet nga dritaret.",
         tone: "text-ink",
         muted: "text-ink-soft",
       },
       {
         time: "20:00",
-        title: "Darka nën ullinj",
-        detail: "Tarraca ngrohet ndërsa pjatat dhe bisedat ecin ngadalë.",
+        title: "Darka & muzika",
+        detail: "Zërimi ynë dhe kateringu juaj; pjatat dhe bisedat ecin ngadalë.",
         tone: "text-ink lg:text-ivory",
         muted: "text-ink-soft lg:text-ivory/72",
       },
       {
-        time: "00:00",
-        title: "Vallëzimi i fundit",
-        detail: "Nata ngushtohet në qirinj, gur dhe njerëzit që ende rrinë.",
+        time: "23:00",
+        title: "Toni zbutet",
+        detail: "Muzika ulet me respekt për fqinjët; nata mbyllet ngadalë deri pas mesnate.",
         tone: "text-ink lg:text-ivory",
         muted: "text-ink-soft lg:text-ivory/72",
       },
@@ -195,13 +201,13 @@ export const venueCopy = {
   metadata: {
     title: "Vendi — Apollonia Events",
     description:
-      "Interierë mermeri dhe tarracë me ullinj pranë Adriatikut. Një vend, një ngjarje në ditë.",
+      "Një sallë e vetme e gjerë në Gjilan, që merr tri forma gjatë ditës — ceremonia, darka, vallëzimi.",
   },
   header: {
     overline: "Vendi",
-    title: "Një shtëpi, vetëm për një ngjarje",
+    title: "Një shtëpi për ngjarjen tuaj",
     description:
-      "Apollonia nuk rezervohet kurrë dy herë në të njëjtën ditë. Nga përgatitjet e mëngjesit te ora e fundit, vendi i përket vetëm ditës suaj.",
+      "Për orët e eventit tuaj, salla përgatitet plotësisht dhe ekipi i kushtohet vetëm juve — nga rregullimi i parë te ora e fundit.",
   },
   heritage: {
     title: "Nga Apolonia e lashtë",
@@ -221,28 +227,28 @@ export const venueCopy = {
     ],
   },
   spacesHeading: {
-    overline: "Hapësirat",
-    title: "Tre mjedise, një ditë e pandërprerë",
+    overline: "Salla",
+    title: "Një sallë, tri kohë",
     description:
-      "Lëvizni nga oborri në sallë e pastaj në tarracë ndërsa ngjarja shpaloset me qetësi.",
+      "E njëjta sallë merr tri forma gjatë ditës — ceremonia, darka, vallëzimi — ndërsa ngjarja shpaloset me qetësi.",
   },
   spaces: [
     {
-      name: "Salla e mermerit",
+      name: "Ceremonia",
       description:
-        "Një interier i qetë me gur dhe dritë të butë, për ceremoni dhe darka të ulura.",
+        "Salla renditet për fjalën e parë pranë dritareve — ulëse në rresht, dritë e butë e ditës dhe çdo sy nga çifti.",
       tone: "marble" as Tone,
     },
     {
-      name: "Tarraca e ullinjve",
+      name: "Darka",
       description:
-        "Një tarracë e hapur, e hijëzuar nga ullinjtë, për pritje, dolli dhe mbrëmje të gjata.",
+        "Tryeza të gjata e të rrumbullakëta zënë vendin rreth banakut të mermertë bardh e zi, ndërsa pjatat dhe bisedat ecin ngadalë.",
       tone: "olive" as Tone,
     },
     {
-      name: "Oborri",
+      name: "Vallëzimi",
       description:
-        "Një prag i qetë me ujë dhe gur, ku të ftuarit mbërrijnë dhe dita nis.",
+        "Tryezat tërhiqen anash dhe salla hapet nën tavanin e punuar si vepër arti — muzikë, dritë e ulët dhe një orë të fundit që s'duam ta mbyllim.",
       tone: "aegean" as Tone,
     },
   ],
@@ -263,7 +269,7 @@ export const eventsCopy = {
     overline: "Eventet",
     title: "Raste që e meritojnë vendin",
     description:
-      "Cilado qoftë mbledhja, Apollonia pret vetëm një në ditë, me vëmendjen që lejon një kalendar i pandarë.",
+      "Cilado qoftë mbledhja, secila pritet me të njëjtën dorë të kujdesshme dhe me vëmendjen e plotë të ekipit për orët e saj.",
   },
   processHeading: {
     overline: "Procesi",
@@ -273,17 +279,20 @@ export const eventsCopy = {
     {
       step: "01",
       title: "Dërgoni kërkesën",
-      detail: "Ndani datën, rastin dhe numrin e të ftuarve në një kërkesë të shkurtër.",
+      detail:
+        "Ndani datën, rastin dhe numrin e të ftuarve në një kërkesë të shkurtër.",
     },
     {
       step: "02",
       title: "Mbajmë ditën",
-      detail: "Konfirmojmë disponueshmërinë dhe e rezervojmë përkohësisht datën tuaj.",
+      detail:
+        "Konfirmojmë disponueshmërinë dhe e rezervojmë përkohësisht datën tuaj.",
     },
     {
       step: "03",
       title: "Planifikojmë bashkë",
-      detail: "Një mikpritës i përkushtuar formëson menunë, ritmin dhe hollësitë me ju.",
+      detail:
+        "Një person përgjegjës ndjek orarin dhe rezervimin; ju zgjidhni kateringun, pijet dhe dekorin, ne përshtatim sallën dhe zërimin.",
     },
     {
       step: "04",
@@ -298,7 +307,7 @@ export const galleryCopy = {
   metadata: {
     title: "Galeria — Apollonia Events",
     description:
-      "Një vështrim i Apollonia Events: salla mermeri, tarraca e ullinjve dhe mbledhje në dritën e artë.",
+      "Një vështrim i Apollonia Events: një sallë e vetme që merr formë nga ceremonia te darka, në dritën e artë.",
   },
   header: {
     overline: "Galeria",
@@ -308,10 +317,10 @@ export const galleryCopy = {
   },
   wall: {
     description:
-      "Një mur i mbledhur me dhoma, tarraca, tryeza dhe mbërritje, në ritmin e pabarabartë të një vendi të parë me kohë.",
+      "Një mur i mbledhur me sallën, tryezat dhe mbërritjet, në ritmin e pabarabartë të një vendi të parë me kohë.",
     countLabel: "pamje",
     withImages:
-      "Një vështrim i përditësuar i dhomave, tarracës dhe mbledhjeve në Apollonia.",
+      "Një vështrim i përditësuar i sallës dhe mbledhjeve në Apollonia.",
     withoutImages:
       "Fotografitë janë përkohësisht mbajtëse vendi; pamjet reale do të vendosen këtu.",
     cta: "Organizoni një vizitë",
@@ -329,20 +338,26 @@ export const galleryCopy = {
 export const testimonialsCopy = [
   {
     quote:
-      "Dita lëvizi me aq kujdes të qetë sa çdo i ftuar u ndie i pritur, i njohur dhe i mbajtur bukur.",
-    attribution: "Mira & Elian, dasmë në shtator",
-  },
-  {
-    quote:
-      "Darka nën ullinj u ndie më pak e organizuar dhe më shumë e kompozuar. Asgjë nuk garoi me shoqërinë.",
-    attribution: "Darkë private familjare",
-  },
-  {
-    quote:
-      "Apollonia i dha festimit ritëm: mbërritje, dritë, tryezë, muzikë dhe një orë të fundit që nuk donim ta mbyllnim.",
-    attribution: "Festim përvjetori",
+      "Kapitulli i parë i sallës: ekspozita kolektive «Kujtesë e Vlerave artistike» nga artistë vendorë.",
+    attribution: "Eventi i parë në Apollonia",
   },
 ] as const;
+
+/**
+ * Half-hour start times the visitor may pick freely, 10:00–22:00 inclusive
+ * (25 options). Labels are the plain "HH:MM" value. Generated rather than
+ * hand-written so the range stays a single source of truth.
+ */
+function buildTimeSlots(): { value: string; label: string }[] {
+  const slots: { value: string; label: string }[] = [];
+  for (let minutes = 10 * 60; minutes <= 22 * 60; minutes += 30) {
+    const value = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(
+      minutes % 60,
+    ).padStart(2, "0")}`;
+    slots.push({ value, label: value });
+  }
+  return slots;
+}
 
 export const reserveCopy = {
   metadata: {
@@ -362,27 +377,37 @@ export const reserveCopy = {
       {
         question: "Sa të ftuar mund të presë Apollonia?",
         answer:
-          "Apollonia pret deri në 120 të ftuar. Hapësirat përshtaten për tryeza intime, ceremoni dhe pritje më të plota.",
+          "Apollonia pret deri në 60 të ftuar. Rreth 30–35 të ulur në tryeza të gjata drejtkëndëshe e të rrumbullakëta, ose deri në 60 në pritje në këmbë.",
       },
       {
         question: "A mbahet më shumë se një ngjarje në ditë?",
         answer:
-          "Jo. Vendi i jepet vetëm një ngjarjeje në ditë, që ekipi dhe hapësirat të jenë tërësisht tuajat.",
+          "Sipas llojit dhe orarit, dita mund të presë deri në dy evente, të ndara me kujdes që të mos përplasen. Salla rifreskohet plotësisht mes tyre.",
       },
       {
         question: "Si funksionon kuzhina?",
         answer:
-          "Kuzhina jonë përgatit menu sezonale në vend. Menuja përfundimtare ndërtohet me ju pas kërkesës së parë.",
+          "S'ka kuzhinë në vend. Ju zgjidhni kateringun dhe pijet tuaja të preferuara, ndërsa ne ofrojmë hapësirën dhe zërimin.",
       },
       {
         question: "Çfarë ndodh nëse moti ndryshon?",
         answer:
-          "Salla e brendshme mban një plan të qetë për mot të paqëndrueshëm. E planifikojmë rrjedhën e ditës pa e lënë rastësisë.",
+          "Festimi zhvillohet brenda në sallë, prandaj moti nuk e prek rrjedhën e ditës. E planifikojmë çdo hollësi pa e lënë rastësisë.",
       },
       {
         question: "Si konfirmohet rezervimi?",
         answer:
           "Fillon me një kërkesë dhe vijon me konfirmim personal nga Apollonia. Data quhet e mbyllur vetëm pasi ta konfirmojmë bashkë.",
+      },
+      {
+        question: "Si funksionon pagesa dhe anulimi?",
+        answer:
+          "Data mbyllet me një paradhënie prej 50%. Anulimi njoftohet të paktën 48–72 orë përpara; në raste të veçanta, edhe brenda 24 orëve, e kuptojmë.",
+      },
+      {
+        question: "Deri në çfarë ore mund të zgjasë festa?",
+        answer:
+          "Muzika me volum të plotë deri në orën 23:00 — jemi në zonë të banuar dhe respektojmë fqinjët — pastaj vazhdon me ton të lehtë; qëndrimi deri rreth 00:00–01:00.",
       },
     ],
   },
@@ -395,15 +420,14 @@ export const reserveCopy = {
     dateFallback: "Zgjidhni një datë",
     timeFallback: "Zgjidhni një orë",
     eventFallback: "Zgjidhni një rast",
-    guestFallback: "Numri i të ftuarve",
+    guestFallback: "1–60 të ftuar",
     reservedDates: "Datat e shënuara janë të rezervuara",
     dayLegend: "Hollësitë e ditës",
     dayTitle: "Dita që keni në mendje",
     dayDescription: "Nisni me datën, orën, rastin dhe numrin e të ftuarve.",
     contactLegend: "Të dhënat e kontaktit",
     contactTitle: "Ku duhet t'ju shkruajmë",
-    contactDescription:
-      "Shtoni të dhënat e personit që porosit ditën.",
+    contactDescription: "Shtoni të dhënat e personit që porosit ditën.",
     labels: {
       date: "Data",
       time: "Ora",
@@ -421,11 +445,14 @@ export const reserveCopy = {
       notes: "Çdo gjë që dëshironi të dimë për rastin tuaj.",
     },
     requestNotice:
-      "Një kërkesë, jo një rezervim i mbyllur. Datën do ta konfirmojmë personalisht.",
+      "Një kërkesë, jo një rezervim i mbyllur. Datën do ta konfirmojmë personalisht. Përgjigjemi brenda 24 orëve.",
     back: "Kthehu",
     continue: "Vazhdo",
-    submit: "Dërgo kërkesën e rezervimit",
+    edit: "Ndrysho",
+    summaryLabel: "Dita e zgjedhur",
+    submit: "Dërgo kërkesën",
     sending: "Duke dërguar…",
+    print: "Printo ftesën",
     successOverline: "Faleminderit",
     successTitle: "Do t'ju përgjigjemi me kujdes",
     successDescription:
@@ -441,8 +468,7 @@ export const reserveCopy = {
     receivedOverline: "Kërkesa u mor",
     draftTitle: "Një rast në Apollonia",
     receivedTitle: "Kërkesa juaj u mor",
-    draftDescription:
-      "Një përshtypje e parë e ditës që dëshironi të mbajmë.",
+    draftDescription: "Një përshtypje e parë e ditës që dëshironi të mbajmë.",
     receivedDescription:
       "Kemi shënimin tuaj dhe do t'ju përgjigjemi personalisht.",
     requestedFor: "Kërkuar për",
@@ -470,7 +496,7 @@ export const reserveCopy = {
     eventRequired: "Ju lutemi zgjidhni një rast.",
     guestRequired: "Ju lutemi shkruani numrin e të ftuarve.",
     guestWhole: "Përdorni një numër të plotë.",
-    guestRange: "Nga 1 deri në 120 të ftuar.",
+    guestRange: "Nga 1 deri në 60 të ftuar.",
     nameRequired: "Ju lutemi shkruani emrin tuaj.",
     phoneRequired: "Ju lutemi shkruani një numër kontakti.",
     emailInvalid: "Ju lutemi shkruani një email të vlefshëm.",
@@ -481,16 +507,9 @@ export const reserveCopy = {
       "Disa hollësi kërkojnë edhe një vështrim. Ju lutemi kontrolloni formularin.",
     unavailable:
       "Kjo datë është tashmë e rezervuar. Ju lutemi zgjidhni një datë tjetër.",
-    submit:
-      "Nuk mundëm ta dërgonim kërkesën tani. Ju lutemi provoni përsëri.",
+    submit: "Nuk mundëm ta dërgonim kërkesën tani. Ju lutemi provoni përsëri.",
   },
-  timeSlots: [
-    { value: "11:00", label: "Paradite vonë · 11:00" },
-    { value: "13:00", label: "Drekë · 13:00" },
-    { value: "16:00", label: "Pasdite · 16:00" },
-    { value: "18:30", label: "Mbrëmje · 18:30" },
-    { value: "20:00", label: "Darkë · 20:00" },
-  ],
+  timeSlots: buildTimeSlots(),
 } as const;
 
 export const footerCopy = {
@@ -501,9 +520,18 @@ export const footerCopy = {
   explore: "Zbuloni",
   visit: "Vizitoni",
   byAppointment: "Me takim",
-  coast: "Bregu i Adriatikut",
+  coast: "Gjilan, Kosovë",
+  street: "Rr. Demush Shabani",
+  cityLine: "60000 Gjilan, Kosovë",
+  phones: [
+    { label: "+383 44 376 237", href: "tel:+38344376237" },
+    { label: "+383 48 190 599", href: "tel:+38348190599" },
+  ],
+  instagramLabel: "Instagram",
+  instagramHref: "https://www.instagram.com/apollonia.events",
   rights: "Të gjitha të drejtat e rezervuara.",
-  reservationOnly: "Vetëm me rezervim · Një kalendar i kuruar i eventeve private",
+  reservationOnly:
+    "Vetëm me rezervim · Një kalendar i kuruar i eventeve private",
   duskLine: "Apollonia nën yje — deri në orën e fundit.",
 } as const;
 
@@ -538,8 +566,10 @@ export const emailCopy = {
   reminder: {
     subject: "Kujtesë: rezervimi juaj në Apollonia është nesër",
     heading: "Rezervimi juaj është nesër",
-    paragraph: "Kjo është një kujtesë e shkurtër për rezervimin tuaj të konfirmuar.",
-    preheader: "Një kujtesë për rezervimin tuaj të ardhshëm te Apollonia Events.",
+    paragraph:
+      "Kjo është një kujtesë e shkurtër për rezervimin tuaj të konfirmuar.",
+    preheader:
+      "Një kujtesë për rezervimin tuaj të ardhshëm te Apollonia Events.",
   },
   declined: {
     subject: "Rreth kërkesës suaj për rezervim në Apollonia",

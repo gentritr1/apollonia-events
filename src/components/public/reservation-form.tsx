@@ -17,7 +17,12 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, startOfToday } from "date-fns";
 import { sq } from "date-fns/locale";
-import { ArrowLeft, ArrowRight, Calendar as CalendarIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar as CalendarIcon,
+  Printer,
+} from "lucide-react";
 
 import {
   reservationSchema,
@@ -30,11 +35,17 @@ import { cn } from "@/lib/utils";
 
 import { ReservationInvitationPreview } from "@/components/public/reservation-invitation-preview";
 import { TempleLine } from "@/components/public/temple-line";
+import { UpcomingFreeDateChips } from "@/components/public/upcoming-free-dates";
+import type { UpcomingFreeDate } from "@/lib/content";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -58,6 +69,27 @@ const stepLabels: Record<ReservationStep, string> = {
 };
 
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+// Grace window after the wizard switches to the "contact" step, during which a
+// stray second activation (double-tap on "Vazhdo", double Enter) that lands on
+// the freshly-rendered submit button is ignored — otherwise it triggers a full
+// validation pass and paints errors under the still-untouched contact fields.
+const CONTACT_SUBMIT_GRACE_MS = 400;
+
+// Session-only draft: survives an accidental refresh/navigation while filling,
+// but intentionally clears when the tab closes (sessionStorage, not local).
+const DRAFT_STORAGE_KEY = "apollonia-reservation-draft";
+
+const defaultFormValues = {
+  date: "",
+  time: "" as ReservationInput["time"],
+  eventType: "" as ReservationInput["eventType"],
+  guestCount: "",
+  name: "",
+  phone: "",
+  email: "",
+  notes: "",
+};
 
 function isAllowedRequestedDate(date: string, confirmedDates: string[]) {
   if (!isoDatePattern.test(date) || confirmedDates.includes(date)) {
@@ -128,7 +160,7 @@ function StepProgress({ step }: { step: ReservationStep }) {
             aria-current={isActive ? "step" : undefined}
             className={cn(
               "relative flex flex-col gap-2",
-              index === 1 && "items-end text-right"
+              index === 1 && "items-end text-right",
             )}
           >
             <span
@@ -138,7 +170,7 @@ function StepProgress({ step }: { step: ReservationStep }) {
                   ? "border-aegean bg-aegean text-ivory"
                   : isComplete
                     ? "border-gold bg-gold text-aegean-deep"
-                    : "border-marble-deep text-ink-soft"
+                    : "border-marble-deep text-ink-soft",
               )}
             >
               {item.marker}
@@ -146,7 +178,7 @@ function StepProgress({ step }: { step: ReservationStep }) {
             <span
               className={cn(
                 "text-xs font-medium tracking-[0.16em] uppercase",
-                isActive ? "text-aegean-deep" : "text-ink-soft"
+                isActive ? "text-aegean-deep" : "text-ink-soft",
               )}
             >
               {stepLabels[item.id]}
@@ -168,13 +200,27 @@ function dateButtonLabel(value: string | undefined) {
 export function ReservationForm({
   confirmedDates = [],
   requestedDate,
+  requestedOccasion,
+  upcomingFreeDates = [],
 }: {
   confirmedDates?: string[];
   requestedDate?: string;
+  requestedOccasion?: string;
+  upcomingFreeDates?: UpcomingFreeDate[];
 }) {
   const [step, setStep] = useState<ReservationStep>("day");
+  // Gates the step-panel entrance animation so it never plays on first paint —
+  // only after the visitor has changed steps at least once.
+  const [stepped, setStepped] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const dayHeadingRef = useRef<HTMLHeadingElement>(null);
+  const contactHeadingRef = useRef<HTMLHeadingElement>(null);
+  const previousStep = useRef<ReservationStep>("day");
+  // Monotonic timestamp of the most recent entry into the "contact" step; the
+  // submit handler compares against it to enforce CONTACT_SUBMIT_GRACE_MS.
+  const contactEnteredAt = useRef<number>(0);
   const appliedRequestedDate = useRef<string | null>(null);
+  const appliedRequestedOccasion = useRef<string | null>(null);
 
   const disabledDates = [
     { before: startOfToday() },
@@ -192,25 +238,79 @@ export function ReservationForm({
     trigger,
     clearErrors,
     setValue,
+    reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ReservationInput>({
     resolver: zodResolver(reservationSchema),
-    defaultValues: {
-      date: "",
-      time: "" as ReservationInput["time"],
-      eventType: "" as ReservationInput["eventType"],
-      guestCount: "",
-      name: "",
-      phone: "",
-      email: "",
-      notes: "",
-    },
+    mode: "onTouched",
+    defaultValues: defaultFormValues,
   });
 
   const values = useWatch({ control });
   const selectedTimeLabel = timeSlots.find(
-    (slot) => slot.value === values.time
+    (slot) => slot.value === values.time,
   )?.label;
+
+  // Restore any in-progress draft on mount. Declared BEFORE the requestedDate /
+  // requestedOccasion effects so that a URL-driven date/occasion still wins:
+  // those effects run afterward (in declaration order) and setValue over this.
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      const stored = window.sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      if (!stored) {
+        return;
+      }
+
+      const draft: unknown = JSON.parse(stored);
+      if (draft && typeof draft === "object") {
+        reset({
+          ...defaultFormValues,
+          ...(draft as Partial<ReservationInput>),
+        });
+      }
+    } catch {
+      // Malformed or unavailable storage — start from a clean form.
+    }
+    // Restore only once, on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist the draft while filling (debounced), so an accidental refresh or
+  // navigation does not lose the visitor's progress.
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const subscription = watch((formValues) => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      timeout = setTimeout(() => {
+        try {
+          window.sessionStorage.setItem(
+            DRAFT_STORAGE_KEY,
+            JSON.stringify(formValues),
+          );
+        } catch {
+          // Storage unavailable (e.g. private mode) — silently skip.
+        }
+      }, 400);
+    });
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      subscription.unsubscribe();
+    };
+  }, [watch]);
 
   useEffect(() => {
     if (
@@ -231,7 +331,7 @@ export function ReservationForm({
     setStep("day");
 
     const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
 
     formRef.current?.scrollIntoView({
@@ -240,12 +340,65 @@ export function ReservationForm({
     });
   }, [clearErrors, confirmedDates, requestedDate, setValue]);
 
+  useEffect(() => {
+    if (
+      !requestedOccasion ||
+      appliedRequestedOccasion.current === requestedOccasion
+    ) {
+      return;
+    }
+
+    appliedRequestedOccasion.current = requestedOccasion;
+    setValue("eventType", requestedOccasion as ReservationInput["eventType"], {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    clearErrors("eventType");
+  }, [clearErrors, requestedOccasion, setValue]);
+
+  // Keep the visitor oriented when the wizard switches steps: bring the form
+  // back to the top and move focus to the step heading.
+  useEffect(() => {
+    if (previousStep.current === step) {
+      return;
+    }
+
+    previousStep.current = step;
+    setStepped(true);
+
+    // Arm the submit grace on every fresh entry into the contact step — this
+    // also re-arms on Kthehu → Vazhdo, since that is another day→contact switch.
+    if (step === "contact") {
+      contactEnteredAt.current =
+        typeof performance !== "undefined" ? performance.now() : Date.now();
+    }
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    formRef.current?.scrollIntoView({
+      block: "start",
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+    const heading =
+      step === "day" ? dayHeadingRef.current : contactHeadingRef.current;
+    heading?.focus({ preventScroll: true });
+  }, [step]);
+
   async function onSubmit(values: ReservationInput) {
     setServerError(null);
     const result = await createReservation(values);
 
     if (result.ok) {
       setSubmittedValues(values);
+      if (typeof window !== "undefined") {
+        try {
+          window.sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+        } catch {
+          // Storage unavailable — nothing to clear.
+        }
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       setServerError(result.error);
@@ -277,12 +430,22 @@ export function ReservationForm({
       return;
     }
 
+    // Swallow a submit that arrives within the grace window right after landing
+    // on the contact step (a stray second tap/Enter carried over from "Vazhdo").
+    // Legitimate submits happen well after this and pass through normally.
+    const now =
+      typeof performance !== "undefined" ? performance.now() : Date.now();
+    if (now - contactEnteredAt.current < CONTACT_SUBMIT_GRACE_MS) {
+      event.preventDefault();
+      return;
+    }
+
     void handleSubmit(onSubmit, handleInvalidSubmit)(event);
   }
 
   if (submittedValues) {
     const submittedTimeLabel = timeSlots.find(
-      (slot) => slot.value === submittedValues.time
+      (slot) => slot.value === submittedValues.time,
     )?.label;
 
     return (
@@ -298,14 +461,24 @@ export function ReservationForm({
           <p className="mt-6 text-sm leading-6 text-ink-soft">
             {reserveCopy.form.successNotice}
           </p>
-          <a
-            href={contactCopy.whatsappHref}
-            className="link-arrow mt-7 text-sm tracking-wide text-aegean transition-colors hover:text-aegean-deep"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {contactCopy.whatsappLabel}
-          </a>
+          <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4">
+            <a
+              href={contactCopy.whatsappHref}
+              className="link-arrow text-sm tracking-wide text-aegean transition-colors hover:text-aegean-deep"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {contactCopy.whatsappLabel}
+            </a>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="btn btn-quiet btn-sm print:hidden"
+            >
+              <Printer className="size-4" />
+              {reserveCopy.form.print}
+            </button>
+          </div>
         </div>
 
         <ReservationInvitationPreview
@@ -324,21 +497,33 @@ export function ReservationForm({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
-      <form
-        ref={formRef}
-        onSubmit={handleFormSubmit}
-        className="rounded-xl border border-marble-deep bg-card p-5 sm:p-8"
-        noValidate
-      >
-        <StepProgress step={step} />
+    <>
+      {/* Free-Saturday chips live inside the form so they disappear together
+          with it on the success screen (the submitted branch returns above). */}
+      <UpcomingFreeDateChips dates={upcomingFreeDates} />
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
+        <form
+          ref={formRef}
+          onSubmit={handleFormSubmit}
+          data-stepped={stepped ? "" : undefined}
+          className="rounded-xl border border-marble-deep bg-card p-5 sm:p-8"
+          noValidate
+        >
+          <StepProgress step={step} />
 
-        {step === "day" ? (
-          <fieldset className="space-y-7">
+          {/* Both fieldsets stay mounted so uncontrolled inputs keep their
+            displayed values when the visitor moves back and forth. */}
+          <fieldset className="step-panel space-y-7" hidden={step !== "day"}>
             <legend className="sr-only">{reserveCopy.form.dayLegend}</legend>
 
             <div>
-              <h2 className="text-3xl text-ink">{reserveCopy.form.dayTitle}</h2>
+              <h2
+                ref={dayHeadingRef}
+                tabIndex={-1}
+                className="text-3xl text-ink focus:outline-none"
+              >
+                {reserveCopy.form.dayTitle}
+              </h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-ink-soft">
                 {reserveCopy.form.dayDescription}
               </p>
@@ -359,10 +544,12 @@ export function ReservationForm({
                         <button
                           id="date"
                           type="button"
-                          aria-describedby={errors.date ? "date-error" : undefined}
+                          aria-describedby={
+                            errors.date ? "date-error" : undefined
+                          }
                           className={cn(
                             "flex h-11 w-full items-center justify-between rounded-lg border border-input bg-ivory/60 px-3 py-2 text-left text-sm transition-colors hover:border-gold/60 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
-                            !field.value && "text-muted-foreground"
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           <span className="truncate">
@@ -371,7 +558,10 @@ export function ReservationForm({
                           <CalendarIcon className="ml-3 size-4 shrink-0 text-ink-soft" />
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 overflow-hidden" align="start">
+                      <PopoverContent
+                        className="w-auto p-0 overflow-hidden"
+                        align="start"
+                      >
                         <Calendar
                           mode="single"
                           locale={sq}
@@ -381,7 +571,9 @@ export function ReservationForm({
                               : undefined
                           }
                           onSelect={(date) =>
-                            field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                            field.onChange(
+                              date ? format(date, "yyyy-MM-dd") : "",
+                            )
                           }
                           disabled={disabledDates}
                           autoFocus
@@ -410,10 +602,14 @@ export function ReservationForm({
                       <SelectTrigger
                         id="time"
                         aria-invalid={Boolean(errors.time)}
-                        aria-describedby={errors.time ? "time-error" : undefined}
+                        aria-describedby={
+                          errors.time ? "time-error" : undefined
+                        }
                         className="h-11 w-full bg-ivory/60 px-3"
                       >
-                        <SelectValue placeholder={reserveCopy.form.timeFallback} />
+                        <SelectValue
+                          placeholder={reserveCopy.form.timeFallback}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {timeSlots.map((slot) => (
@@ -447,7 +643,9 @@ export function ReservationForm({
                         }
                         className="h-11 w-full bg-ivory/60 px-3"
                       >
-                        <SelectValue placeholder={reserveCopy.form.eventFallback} />
+                        <SelectValue
+                          placeholder={reserveCopy.form.eventFallback}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {eventTypes.map((event) => (
@@ -470,7 +668,7 @@ export function ReservationForm({
                   id="guestCount"
                   type="number"
                   min={1}
-                  max={120}
+                  max={60}
                   placeholder={reserveCopy.form.guestFallback}
                   aria-invalid={Boolean(errors.guestCount)}
                   aria-describedby={
@@ -482,15 +680,60 @@ export function ReservationForm({
               </Field>
             </div>
           </fieldset>
-        ) : (
-          <fieldset className="space-y-7">
-            <legend className="sr-only">{reserveCopy.form.contactLegend}</legend>
+
+          <fieldset
+            className="step-panel space-y-7"
+            hidden={step !== "contact"}
+          >
+            <legend className="sr-only">
+              {reserveCopy.form.contactLegend}
+            </legend>
 
             <div>
-              <h2 className="text-3xl text-ink">{reserveCopy.form.contactTitle}</h2>
+              <h2
+                ref={contactHeadingRef}
+                tabIndex={-1}
+                className="text-3xl text-ink focus:outline-none"
+              >
+                {reserveCopy.form.contactTitle}
+              </h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-ink-soft">
                 {reserveCopy.form.contactDescription}
               </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-lg border border-gold/30 bg-ivory/60 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-[0.68rem] font-semibold tracking-[0.16em] text-ink-soft uppercase">
+                  {reserveCopy.form.summaryLabel}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-ink">
+                  {dateButtonLabel(values.date)}
+                  {selectedTimeLabel ? ` · ${selectedTimeLabel}` : ""}
+                  {values.eventType ? ` · ${values.eventType}` : ""}
+                  {values.guestCount
+                    ? ` · ${
+                        values.guestCount === "1"
+                          ? reserveCopy.invitation.singleGuest(
+                              values.guestCount,
+                            )
+                          : reserveCopy.invitation.manyInvitees(
+                              values.guestCount,
+                            )
+                      }`
+                    : ""}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setServerError(null);
+                  setStep("day");
+                }}
+                className="text-sm tracking-wide text-aegean underline-offset-4 transition-colors hover:text-aegean-deep hover:underline"
+              >
+                {reserveCopy.form.edit}
+              </button>
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
@@ -558,80 +801,83 @@ export function ReservationForm({
               />
             </Field>
           </fieldset>
-        )}
 
-        {serverError && (
-          <p className="mt-7 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-            {serverError}
-          </p>
-        )}
+          {serverError && (
+            <p
+              role="alert"
+              className="mt-7 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+            >
+              {serverError}
+            </p>
+          )}
 
-        <div className="mt-8 flex flex-col gap-4 border-t border-marble-deep pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs leading-5 text-ink-soft">
-            {reserveCopy.form.requestNotice}
-          </p>
+          <div className="mt-8 flex flex-col gap-4 border-t border-marble-deep pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs leading-5 text-ink-soft">
+              {reserveCopy.form.requestNotice}
+            </p>
 
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
-            {step === "contact" ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setServerError(null);
-                  setStep("day");
-                }}
-                disabled={isSubmitting}
-                className="btn btn-quiet btn-sm"
-              >
-                <ArrowLeft className="size-4" />
-                {reserveCopy.form.back}
-              </button>
-            ) : null}
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+              {step === "contact" ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setServerError(null);
+                    setStep("day");
+                  }}
+                  disabled={isSubmitting}
+                  className="btn btn-quiet btn-sm"
+                >
+                  <ArrowLeft className="size-4" />
+                  {reserveCopy.form.back}
+                </button>
+              ) : null}
 
-            {step === "day" ? (
-              <button
-                type="button"
-                onClick={() => void goToContactStep()}
-                disabled={isSubmitting}
-                className="btn btn-primary btn-sm"
-              >
-                {reserveCopy.form.continue}
-                <ArrowRight className="size-4" />
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn btn-primary btn-sm"
-              >
-                {isSubmitting ? (
-                  <>
-                    <TempleLine
-                      animate="draw"
-                      loop
-                      className="h-10 w-16 text-gold-soft"
-                    />
-                    {reserveCopy.form.sending}
-                  </>
-                ) : (
-                  reserveCopy.form.submit
-                )}
-              </button>
-            )}
+              {step === "day" ? (
+                <button
+                  type="button"
+                  onClick={() => void goToContactStep()}
+                  disabled={isSubmitting}
+                  className="btn btn-primary btn-sm"
+                >
+                  {reserveCopy.form.continue}
+                  <ArrowRight className="size-4" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn btn-primary btn-sm"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <TempleLine
+                        animate="draw"
+                        loop
+                        className="h-10 w-16 text-gold-soft"
+                      />
+                      {reserveCopy.form.sending}
+                    </>
+                  ) : (
+                    reserveCopy.form.submit
+                  )}
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
 
-      <ReservationInvitationPreview
-        date={values.date}
-        timeLabel={selectedTimeLabel}
-        occasion={values.eventType}
-        guestCount={values.guestCount}
-        name={values.name}
-        phone={values.phone}
-        email={values.email}
-        notes={values.notes}
-        className="lg:sticky lg:top-24"
-      />
-    </div>
+        <ReservationInvitationPreview
+          date={values.date}
+          timeLabel={selectedTimeLabel}
+          occasion={values.eventType}
+          guestCount={values.guestCount}
+          name={values.name}
+          phone={values.phone}
+          email={values.email}
+          notes={values.notes}
+          className="lg:sticky lg:top-24"
+        />
+      </div>
+    </>
   );
 }

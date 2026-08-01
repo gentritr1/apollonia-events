@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 
 import { MeanderRule } from "@/components/public/meander-rule";
 import { ReservationForm } from "@/components/public/reservation-form";
-import { UpcomingFreeDateChips } from "@/components/public/upcoming-free-dates";
-import { reserveCopy } from "@/lib/content";
+import { eventTypes, reserveCopy } from "@/lib/content";
 import {
   getConfirmedReservationDates,
   getUpcomingFreeDates,
@@ -11,8 +10,27 @@ import {
 
 export const metadata: Metadata = reserveCopy.metadata;
 
+const faqJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: reserveCopy.faq.items.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+}).replace(/</g, "\\u003c");
+
 function getDateParam(params: { date?: string | string[] }) {
   return typeof params.date === "string" ? params.date : undefined;
+}
+
+function getOccasionParam(params: { occasion?: string | string[] }) {
+  const slug =
+    typeof params.occasion === "string" ? params.occasion : undefined;
+  return eventTypes.find((event) => event.slug === slug)?.title;
 }
 
 function ReserveFaq() {
@@ -44,7 +62,10 @@ function ReserveFaq() {
 export default async function PublicReservationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string | string[] }>;
+  searchParams: Promise<{
+    date?: string | string[];
+    occasion?: string | string[];
+  }>;
 }) {
   const [confirmedDates, upcomingFreeDates, params] = await Promise.all([
     getConfirmedReservationDates(),
@@ -52,9 +73,14 @@ export default async function PublicReservationPage({
     searchParams,
   ]);
   const requestedDate = getDateParam(params);
+  const requestedOccasion = getOccasionParam(params);
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: faqJsonLd }}
+      />
       <section className="marble-wash">
         <div className="mx-auto w-full max-w-4xl px-6 pt-24 pb-12 text-center">
           <p className="overline mb-5">{reserveCopy.header.overline}</p>
@@ -72,10 +98,11 @@ export default async function PublicReservationPage({
         id="reservation-form"
         className="mx-auto w-full max-w-6xl scroll-mt-24 px-6 pt-4 pb-20"
       >
-        <UpcomingFreeDateChips dates={upcomingFreeDates} />
         <ReservationForm
           confirmedDates={confirmedDates}
           requestedDate={requestedDate}
+          requestedOccasion={requestedOccasion}
+          upcomingFreeDates={upcomingFreeDates}
         />
       </section>
       <ReserveFaq />

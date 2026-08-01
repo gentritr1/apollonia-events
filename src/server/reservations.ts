@@ -88,7 +88,9 @@ const getCachedUpcomingFreeDates = unstable_cache(
       confirmedReservations.map((reservation) => toIsoDate(reservation.date))
     );
     const dates: UpcomingFreeDate[] = [];
-    let candidate = nextSaturdayOnOrAfter(today);
+    // Suggestions need realistic lead time: same-day events can't be planned,
+    // so the strip starts looking from tomorrow.
+    let candidate = nextSaturdayOnOrAfter(addUtcDays(today, 1));
 
     while (dates.length < 3) {
       const iso = toIsoDate(candidate);

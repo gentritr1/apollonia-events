@@ -1,9 +1,6 @@
 import Link from "next/link";
 
-import {
-  availabilityCopy,
-  type UpcomingFreeDate,
-} from "@/lib/content";
+import { availabilityCopy, type UpcomingFreeDate } from "@/lib/content";
 
 function DateLink({ date }: { date: UpcomingFreeDate }) {
   return (
@@ -65,7 +62,10 @@ export function UpcomingFreeDateChips({
   }
 
   return (
-    <div className="mb-7 scroll-mt-24" aria-label={availabilityCopy.reservePrompt}>
+    <div
+      className="mb-7 scroll-mt-24"
+      aria-label={availabilityCopy.reservePrompt}
+    >
       <p className="overline mb-4 text-[0.66rem] tracking-[0.18em]">
         {availabilityCopy.reservePrompt}
       </p>
@@ -74,7 +74,7 @@ export function UpcomingFreeDateChips({
           <Link
             key={date.iso}
             href={`/reserve?date=${date.iso}`}
-            className="btn btn-quiet btn-sm font-serif text-lg"
+            className="btn btn-quiet btn-sm date-chip font-serif text-lg"
           >
             {date.label}
           </Link>
