@@ -15,6 +15,7 @@ export function CloudinaryFillImage({
   className,
   cloudName,
   priority = false,
+  loading,
   onLoad,
 }: {
   src: string;
@@ -23,6 +24,9 @@ export function CloudinaryFillImage({
   className?: string;
   cloudName?: string;
   priority?: boolean;
+  /** "eager" loads immediately WITHOUT emitting a preload link, which
+   * `priority` does. Use it for an above-the-fold image that is not the LCP. */
+  loading?: "eager" | "lazy";
   onLoad?: ReactEventHandler<HTMLImageElement>;
 }) {
   return (
@@ -38,6 +42,7 @@ export function CloudinaryFillImage({
       {...APOLLONIA_IMAGE_GRADE}
       config={cloudName ? { cloud: { cloudName } } : undefined}
       priority={priority}
+      loading={loading}
       className={className}
       onLoad={onLoad}
     />

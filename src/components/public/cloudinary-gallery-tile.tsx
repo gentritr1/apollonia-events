@@ -14,6 +14,7 @@ export function CloudinaryGalleryTile({
   cloudName,
   className,
   priority = false,
+  loading,
   sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
   variant = "default",
   as = "figure",
@@ -25,6 +26,7 @@ export function CloudinaryGalleryTile({
   cloudName?: string;
   className?: string;
   priority?: boolean;
+  loading?: "eager" | "lazy";
   sizes?: string;
   variant?: CloudinaryGalleryTileVariant;
   as?: CloudinaryGalleryTileElement;
@@ -48,6 +50,7 @@ export function CloudinaryGalleryTile({
           cloudName={cloudName}
           sizes={sizes}
           priority={priority}
+          loading={loading}
           className="object-cover motion-safe:transition-transform motion-safe:duration-[800ms] motion-safe:ease-out group-hover:scale-[1.03] group-focus-visible:scale-[1.03]"
         />
         <span
@@ -83,7 +86,7 @@ export function CloudinaryGalleryTile({
     );
     const rootClassName = cn(
       "group relative block overflow-hidden rounded-lg bg-marble shadow-sm ring-1 ring-gold/20",
-      className
+      className,
     );
 
     return as === "figure" ? (
@@ -101,7 +104,7 @@ export function CloudinaryGalleryTile({
     <figure
       className={cn(
         "group relative overflow-hidden rounded-2xl bg-marble shadow-sm ring-1 ring-gold/15",
-        className
+        className,
       )}
       style={blurStyle}
     >
@@ -111,6 +114,7 @@ export function CloudinaryGalleryTile({
         cloudName={cloudName}
         sizes={sizes}
         priority={priority}
+        loading={loading}
         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
       />
       <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_20%_0%,rgba(255,255,255,0.2),transparent_55%)]" />

@@ -242,10 +242,14 @@ export function GalleryLightbox({
                     sizes={layout.sizes}
                     variant="curated"
                     as="span"
-                    // The second tile is the wide 16:9 one and is physically
-                    // the largest element above the fold, so it -- not the
-                    // first -- was being picked as LCP and lazy-loaded.
-                    priority={index < 2}
+                    // Only one image should emit a preload link; a second
+                    // preload that the browser does not use inside a few
+                    // seconds is what produced the "preloaded but not used"
+                    // console warning. The wide 16:9 second tile still must
+                    // not lazy-load -- it is the largest thing above the fold
+                    // and gets picked as LCP -- so it loads eagerly instead.
+                    priority={index === 0}
+                    loading={index === 1 ? "eager" : undefined}
                   />
                 ) : (
                   <GalleryTile

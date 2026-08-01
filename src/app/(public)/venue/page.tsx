@@ -65,6 +65,9 @@ function HeritageBand({
               className="aspect-[4/5] w-full max-w-md"
               sizes="(max-width: 1024px) 90vw, 34vw"
               variant="curated"
+              // Largest element above the fold on this page, so it is the LCP
+              // and must not be lazy-loaded.
+              priority
             />
           ) : (
             <AdriaticCoastline />
