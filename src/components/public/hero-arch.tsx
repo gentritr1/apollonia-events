@@ -69,7 +69,7 @@ export function HeroArch({
       aria-label={hasPhoto ? alt || ariaLabel : ariaLabel}
       className={cn(
         "aegean-arch relative aspect-[3/4] w-full max-w-sm overflow-hidden rounded-[9999px_9999px_1.5rem_1.5rem] shadow-xl ring-1 ring-gold/30",
-        className
+        className,
       )}
     >
       {hasPhoto ? (
