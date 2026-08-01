@@ -130,12 +130,14 @@ export default async function Home() {
               >
                 <span className="timeline-dot relative z-10 block size-3 rounded-full bg-gold" />
                 <p
-                  className={`mt-7 font-serif text-3xl leading-none italic text-gold-soft ${
-                    // The two evening items sit on the dark teal end of the lg
-                    // gradient; plain gold-soft fails contrast there, so lift the
-                    // numeral to an ivory-mixed gold at lg only (light sides keep
-                    // gold-soft). See globals.css .day-timeline.
-                    index >= 2 ? "lg:text-[#efe4c4]" : ""
+                  className={`mt-7 font-serif text-3xl leading-none italic ${
+                    // The gradient now darkens inside the content, so each half
+                    // needs its own numeral colour: gold-soft washed out on the
+                    // lit sand (1.5:1), and would vanish entirely on the teal.
+                    // See globals.css .day-timeline.
+                    index >= 2
+                      ? "text-gold-soft lg:text-[#efe4c4]"
+                      : "text-gold-deep"
                   }`}
                 >
                   {item.time}

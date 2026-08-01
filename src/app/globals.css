@@ -17,6 +17,10 @@
   /* Ink / text */
   --color-ink: #1e2a30;
   --color-ink-soft: #475158;
+  /* Timeline detail text sits on the sand third of the day gradient, where
+     ink-soft measured only 4.14:1. Darkened just enough to clear AA (4.5) for
+     small text without flattening the muted/primary hierarchy. */
+  --color-timeline-muted: #3a4449;
 
   /* Aegean blue (primary) */
   --color-aegean: #2c5c6b;
@@ -27,6 +31,9 @@
   --color-gold: #a8854e;
   --color-gold-soft: #c4a872;
   --color-gold-text: #8a6b3c;
+  /* Timeline numerals on the lit half: gold-text measured 2.42:1 against the
+     deeper sand under the 17:00 column. This clears AA-large (3.0) there. */
+  --color-gold-deep: #6f5526;
   --color-olive: #6f7245;
 
   /* Typography */
@@ -572,12 +579,22 @@ html[data-daypart="golden"] .aegean-arch {
 
 @media (min-width: 64rem) {
   .day-timeline {
+    /* Dusk has to land INSIDE the content, not at the viewport edge. The
+       container is max-w-6xl and centred, so the four columns occupy roughly
+       10%–90% of the section width: the 20:00 column starts near 56%. The old
+       ramp only reached teal at 100%, which left the two lg:text-ivory items
+       sitting on light sand — measured 1.39:1 and 2.45:1. Sunset now falls
+       between the 17:00 and 20:00 columns so the evening half is genuinely
+       dark. */
     background:
       linear-gradient(
         100deg,
-        rgba(246, 242, 233, 0.96) 0%,
-        rgba(228, 204, 147, 0.62) 48%,
-        rgba(28, 61, 71, 0.96) 100%
+        rgba(246, 242, 233, 0.97) 0%,
+        rgba(233, 211, 158, 0.66) 30%,
+        rgba(196, 150, 96, 0.72) 46%,
+        rgba(74, 88, 92, 0.94) 58%,
+        rgba(28, 61, 71, 0.97) 72%,
+        rgba(20, 45, 53, 0.98) 100%
       ),
       var(--color-ivory);
   }
