@@ -51,7 +51,7 @@ export function SiteHeader() {
         </Link>
         <button
           type="button"
-          className="grid size-10 place-items-center rounded-full text-ink transition-colors hover:bg-marble/70"
+          className="grid size-11 place-items-center rounded-full text-ink transition-colors hover:bg-marble/70"
           aria-label={navCopy.closeMenu}
           onClick={() => setOpen(false)}
         >
@@ -173,7 +173,7 @@ export function SiteHeader() {
             </Link>
             <button
               type="button"
-              className="grid size-10 place-items-center rounded-full text-ink transition-colors hover:bg-marble/70"
+              className="grid size-11 place-items-center rounded-full text-ink transition-colors hover:bg-marble/70"
               aria-label={navCopy.openMenu}
               aria-expanded={open}
               onClick={() => setOpen(true)}

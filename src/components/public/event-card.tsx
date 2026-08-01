@@ -13,6 +13,7 @@ const toneBar: Record<Tone, string> = {
 /** A single event type, presented as a calm bordered card. */
 export function EventCard({
   title,
+  headingLevel: Heading = "h3",
   description,
   tone = "marble",
   href,
@@ -20,6 +21,8 @@ export function EventCard({
   className,
 }: {
   title: string;
+  /** h3 under a section heading; h2 where the cards follow the page h1 directly. */
+  headingLevel?: "h2" | "h3";
   description: string;
   tone?: Tone;
   href?: string;
@@ -39,7 +42,7 @@ export function EventCard({
           toneBar[tone],
         )}
       />
-      <h3 className="text-2xl text-ink">{title}</h3>
+      <Heading className="text-2xl text-ink">{title}</Heading>
       <p className="mt-3 text-pretty leading-relaxed text-ink-soft">
         {description}
       </p>

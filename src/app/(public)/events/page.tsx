@@ -25,11 +25,16 @@ export default function EventsPage() {
         </div>
       </section>
 
-      <Reveal as="section" className="mx-auto w-full max-w-6xl px-6 py-24" stagger>
+      <Reveal
+        as="section"
+        className="mx-auto w-full max-w-6xl px-6 py-24"
+        stagger
+      >
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {eventTypes.map((e) => (
             <EventCard
               key={e.slug}
+              headingLevel="h2"
               title={e.title}
               description={e.description}
               tone={e.tone}
@@ -61,10 +66,7 @@ export default function EventsPage() {
             ))}
           </ol>
           <div className="mt-16 text-center">
-            <Link
-              href="/reserve"
-              className="btn btn-primary"
-            >
+            <Link href="/reserve" className="btn btn-primary">
               {eventsCopy.cta}
             </Link>
           </div>
