@@ -604,6 +604,47 @@ html[data-daypart="golden"] .aegean-arch {
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-gold) 16%, transparent);
 }
 
+/* The scroll-driven sun. Distinct from the four flat .timeline-dot stations:
+   a warm disc with a corona, so the travelling mark reads as the sun crossing
+   the day rather than a fifth station. */
+.day-timeline-sun {
+  background: radial-gradient(
+    circle at 50% 42%,
+    #fff6dd 0%,
+    var(--color-gold-soft) 46%,
+    var(--color-gold) 100%
+  );
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--color-gold) 22%, transparent),
+    0 0 18px 5px color-mix(in srgb, var(--color-gold-soft) 55%, transparent),
+    0 0 42px 14px color-mix(in srgb, var(--color-gold-soft) 22%, transparent);
+}
+
+/* Daylight that travels with the sun. Deliberately weak (max 0.09) and faded
+   out as the sun sets, because it passes over the teal half where the ivory
+   text lives — measured after, all four columns still clear AA. */
+@media (min-width: 64rem) {
+  .day-timeline::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      42% 120% at calc(var(--gnomon-progress, 0) * 100%) 12%,
+      rgba(255, 238, 197, 0.09),
+      transparent 70%
+    );
+    opacity: calc(1 - var(--gnomon-progress, 0) * 0.55);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .day-timeline::after {
+      display: none;
+    }
+  }
+}
+
 .temple-line {
   display: block;
   overflow: visible;
