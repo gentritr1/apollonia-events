@@ -1,10 +1,8 @@
 import { type CSSProperties } from "react";
 
 import { cn } from "@/lib/utils";
-import {
-  CloudinaryFillImage,
-  getCloudinaryBlurUrl,
-} from "@/components/cloudinary/cloudinary-image";
+import { getCloudinaryBlurUrl } from "@/lib/cloudinary-blur";
+import { CloudinaryFillImage } from "@/components/cloudinary/cloudinary-image";
 
 type CloudinaryGalleryTileVariant = "default" | "curated";
 type CloudinaryGalleryTileElement = "figure" | "span";

@@ -7,14 +7,12 @@ import {
   type GalleryLightboxItem,
 } from "@/components/public/gallery-lightbox";
 import { galleryCopy, galleryItems } from "@/lib/content";
-import { db } from "@/lib/db";
+import { getPublicGalleryImages } from "@/server/gallery-read";
 
 export const metadata: Metadata = galleryCopy.metadata;
 
 export default async function GalleryPage() {
-  const images = await db.galleryImage.findMany({
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-  });
+  const images = await getPublicGalleryImages();
   const cloudName =
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
     process.env.CLOUDINARY_CLOUD_NAME ||

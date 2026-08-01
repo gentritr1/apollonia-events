@@ -19,23 +19,23 @@ import {
   homeCopy,
   venueFeatures,
 } from "@/lib/content";
-import { db } from "@/lib/db";
+import { getPublicGalleryImages } from "@/server/gallery-read";
 import { getUpcomingFreeDates } from "@/server/reservations";
 
 export const metadata: Metadata = homeCopy.metadata;
 
 export default async function Home() {
-  const [galleryImages, upcomingFreeDates] = await Promise.all([
-    db.galleryImage.findMany({
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-      take: 3,
-    }),
+  // Four, not three: the first image becomes the hero, the rest fill the strip.
+  const [heroAndStrip, upcomingFreeDates] = await Promise.all([
+    getPublicGalleryImages(4),
     getUpcomingFreeDates(),
   ]);
   const cloudName =
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
     process.env.CLOUDINARY_CLOUD_NAME ||
     "";
+  const heroImage = cloudName ? heroAndStrip[0] : undefined;
+  const galleryImages = heroImage ? heroAndStrip.slice(1) : heroAndStrip;
   const hasGalleryImages = galleryImages.length > 0 && Boolean(cloudName);
 
   return (
@@ -69,7 +69,12 @@ export default async function Home() {
           </div>
 
           <div className="flex justify-center lg:justify-end">
-            <HeroArch ariaLabel={homeCopy.hero.venueAriaLabel} />
+            <HeroArch
+              ariaLabel={homeCopy.hero.venueAriaLabel}
+              publicId={heroImage?.publicId}
+              alt={heroImage?.alt}
+              cloudName={cloudName}
+            />
           </div>
         </div>
       </section>

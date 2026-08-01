@@ -8,22 +8,6 @@ const APOLLONIA_IMAGE_GRADE = {
   tint: "8:2c5c6b",
 } as const;
 
-export function getCloudinaryBlurUrl({
-  publicId,
-  cloudName,
-}: {
-  publicId: string;
-  cloudName?: string;
-}) {
-  if (!cloudName) {
-    return null;
-  }
-
-  const encodedPublicId = publicId.split("/").map(encodeURIComponent).join("/");
-
-  return `https://res.cloudinary.com/${cloudName}/image/upload/e_blur:2000,q_1,w_32/${encodedPublicId}`;
-}
-
 export function CloudinaryFillImage({
   src,
   alt,

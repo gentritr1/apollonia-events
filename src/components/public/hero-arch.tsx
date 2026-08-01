@@ -2,15 +2,23 @@
 
 import { useEffect, useRef } from "react";
 
+import { CloudinaryFillImage } from "@/components/cloudinary/cloudinary-image";
 import { MeanderRule } from "@/components/public/meander-rule";
 import { cn } from "@/lib/utils";
 
 export function HeroArch({
   ariaLabel,
   className,
+  publicId,
+  alt,
+  cloudName,
 }: {
   ariaLabel: string;
   className?: string;
+  /** First gallery image. Absent → the arch keeps its painted gradient. */
+  publicId?: string;
+  alt?: string;
+  cloudName?: string;
 }) {
   const ref = useRef<HTMLElement | null>(null);
 
@@ -53,15 +61,33 @@ export function HeroArch({
     };
   }, []);
 
+  const hasPhoto = Boolean(publicId && cloudName);
+
   return (
     <figure
       ref={ref}
-      aria-label={ariaLabel}
+      aria-label={hasPhoto ? alt || ariaLabel : ariaLabel}
       className={cn(
         "aegean-arch relative aspect-[3/4] w-full max-w-sm overflow-hidden rounded-[9999px_9999px_1.5rem_1.5rem] shadow-xl ring-1 ring-gold/30",
         className
       )}
     >
+      {hasPhoto ? (
+        <>
+          <CloudinaryFillImage
+            src={publicId!}
+            alt=""
+            cloudName={cloudName}
+            priority
+            sizes="(min-width: 1024px) 24rem, (min-width: 640px) 24rem, 100vw"
+            className="object-cover"
+          />
+          {/* The gold hairline, meander and arch border all sit on the photo;
+              this keeps them legible over a bright frame without dimming the
+              middle of the image. */}
+          <div className="absolute inset-0 bg-gradient-to-b from-ink/25 via-transparent to-ink/55" />
+        </>
+      ) : null}
       <div className="absolute inset-3 rounded-[9999px_9999px_1rem_1rem] border border-gold-soft/30" />
       <div className="absolute inset-x-10 top-12 h-px bg-gradient-to-r from-transparent via-ivory/70 to-transparent" />
       <MeanderRule
