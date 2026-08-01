@@ -12,6 +12,7 @@ import { Reveal } from "@/components/public/reveal";
 import { HeroArch } from "@/components/public/hero-arch";
 import { DayTimelineGnomon } from "@/components/public/day-timeline-gnomon";
 import { UpcomingFreeDatesStrip } from "@/components/public/upcoming-free-dates";
+import { VenueReel } from "@/components/public/venue-reel";
 import {
   eventCardCopy,
   eventTypes,
@@ -178,6 +179,9 @@ export default async function Home() {
       <Reveal as="section" className="px-6 py-24">
         <EpigraphTestimonials />
       </Reveal>
+
+      {/* the hall, in motion — leads into the gallery */}
+      <VenueReel cloudName={cloudName} />
 
       {/* gallery preview */}
       <Reveal
