@@ -4,8 +4,10 @@ import Link from "next/link";
 import { MeanderRule } from "@/components/public/meander-rule";
 import { SectionHeading } from "@/components/public/section-heading";
 import { GalleryTile } from "@/components/public/gallery-tile";
+import { CloudinaryGalleryTile } from "@/components/public/cloudinary-gallery-tile";
 import { Reveal } from "@/components/public/reveal";
 import { venueCopy, venueFeatures } from "@/lib/content";
+import { getPublicGalleryImages } from "@/server/gallery-read";
 
 export const metadata: Metadata = venueCopy.metadata;
 
@@ -40,13 +42,33 @@ function AdriaticCoastline() {
   );
 }
 
-function HeritageBand() {
+function HeritageBand({
+  image,
+  cloudName,
+}: {
+  image?: { publicId: string; alt: string } | null;
+  cloudName: string;
+}) {
   return (
-    <Reveal as="section" className="heritage-band border-y border-gold/15 bg-marble/25">
+    <Reveal
+      as="section"
+      className="heritage-band border-y border-gold/15 bg-marble/25"
+    >
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 px-6 py-20 lg:grid-cols-[0.82fr_1fr] lg:items-center lg:py-24">
         <div>
           <p className="overline mb-5">{venueCopy.heritage.title}</p>
-          <AdriaticCoastline />
+          {image && cloudName ? (
+            <CloudinaryGalleryTile
+              publicId={image.publicId}
+              alt={image.alt}
+              cloudName={cloudName}
+              className="aspect-[4/5] w-full max-w-md"
+              sizes="(max-width: 1024px) 90vw, 34vw"
+              variant="curated"
+            />
+          ) : (
+            <AdriaticCoastline />
+          )}
         </div>
         <div className="heritage-beats grid gap-8 sm:grid-cols-3 lg:grid-cols-1">
           {venueCopy.heritage.beats.map((beat) => (
@@ -65,7 +87,18 @@ function HeritageBand() {
   );
 }
 
-export default function VenuePage() {
+export default async function VenuePage() {
+  // One photo per space plus one for the heritage band. Falls back to the
+  // painted placeholders when the gallery is empty or Cloudinary is
+  // unconfigured, so the page never renders holes.
+  const images = await getPublicGalleryImages(venueCopy.spaces.length + 1);
+  const cloudName =
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+    process.env.CLOUDINARY_CLOUD_NAME ||
+    "";
+  const heritageImage = cloudName ? images[0] : null;
+  const spaceImages = cloudName ? images.slice(1) : [];
+
   return (
     <>
       {/* page header */}
@@ -82,7 +115,7 @@ export default function VenuePage() {
         </div>
       </section>
 
-      <HeritageBand />
+      <HeritageBand image={heritageImage} cloudName={cloudName} />
 
       {/* spaces */}
       <Reveal as="section" className="mx-auto w-full max-w-6xl px-6 py-24">
@@ -98,10 +131,21 @@ export default function VenuePage() {
               key={space.name}
               className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16"
             >
-              <GalleryTile
-                tone={space.tone}
-                className={`aspect-[4/3] ${i % 2 === 1 ? "lg:order-2" : ""}`}
-              />
+              {spaceImages[i] ? (
+                <CloudinaryGalleryTile
+                  publicId={spaceImages[i]!.publicId}
+                  alt={spaceImages[i]!.alt}
+                  cloudName={cloudName}
+                  className={`aspect-[4/3] ${i % 2 === 1 ? "lg:order-2" : ""}`}
+                  sizes="(max-width: 1024px) 92vw, 46vw"
+                  variant="curated"
+                />
+              ) : (
+                <GalleryTile
+                  tone={space.tone}
+                  className={`aspect-[4/3] ${i % 2 === 1 ? "lg:order-2" : ""}`}
+                />
+              )}
               <div className={i % 2 === 1 ? "lg:order-1" : ""}>
                 <h3 className="text-3xl text-ink">{space.name}</h3>
                 <p className="mt-4 max-w-md text-pretty text-lg leading-relaxed text-ink-soft">
@@ -136,10 +180,7 @@ export default function VenuePage() {
             ))}
           </dl>
           <div className="mt-16 text-center">
-            <Link
-              href="/reserve"
-              className="btn btn-primary"
-            >
+            <Link href="/reserve" className="btn btn-primary">
               {venueCopy.cta}
             </Link>
           </div>
