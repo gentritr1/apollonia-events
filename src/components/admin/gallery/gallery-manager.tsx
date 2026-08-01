@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { ImagePlus, Loader2, Save, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { GalleryImage } from "@prisma/client";
 
 import {
-  addGalleryImage,
+  addGalleryImages,
   deleteGalleryImage,
   updateGalleryImage,
 } from "@/server/gallery";
@@ -83,6 +83,11 @@ export function GalleryManager({
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  // Buffers each file's result between onSuccess and onQueuesEnd. A ref, not
+  // state: it must survive re-renders without triggering one per uploaded file.
+  const pendingUploads = useRef<
+    NonNullable<ReturnType<typeof getUploadInfo>>[]
+  >([]);
   const [isPending, startTransition] = useTransition();
   const canUpload = Boolean(cloudName && apiKey);
 
@@ -104,11 +109,21 @@ export function GalleryManager({
               config={{ cloud: { cloudName, apiKey } }}
               options={{
                 folder: uploadFolder,
-                multiple: false,
-                maxFiles: 1,
+                multiple: true,
+                maxFiles: 20,
                 resourceType: "image",
                 sources: ["local", "url"],
                 clientAllowedFormats: ["jpg", "jpeg", "png", "webp", "avif"],
+                // Downscale in the browser before anything leaves the machine.
+                // Phone and DSLR originals are 25-30MP; the site never renders
+                // wider than 2048 (see deviceSizes in next.config.ts), so the
+                // extra pixels cost upload time, Cloudinary storage and a
+                // slower first derive, and show nobody anything.
+                maxImageWidth: 2560,
+                maxImageHeight: 2560,
+                // Free plan rejects anything over 10MB server-side. Catching it
+                // here fails fast with a clear message instead of mid-upload.
+                maxImageFileSize: 10_000_000,
               }}
               onSuccess={(result) => {
                 const uploadInfo = getUploadInfo(result.info);
@@ -118,16 +133,28 @@ export function GalleryManager({
                   return;
                 }
 
+                // onSuccess fires once per file. Collect rather than save here:
+                // saving per file would race on sortOrder and refresh the page
+                // once per photo.
                 setError(null);
+                pendingUploads.current.push(uploadInfo);
+              }}
+              onQueuesEnd={() => {
+                const batch = pendingUploads.current.splice(0);
+
+                if (batch.length === 0) {
+                  return;
+                }
+
                 startTransition(async () => {
                   try {
-                    await addGalleryImage(uploadInfo);
+                    await addGalleryImages(batch);
                     router.refresh();
                   } catch (err) {
                     setError(
                       err instanceof Error
                         ? err.message
-                        : "Could not save the uploaded image."
+                        : "Could not save the uploaded images.",
                     );
                   }
                 });
@@ -159,7 +186,9 @@ export function GalleryManager({
           )}
         </div>
 
-        {error ? <p className="mt-4 text-sm text-destructive">{error}</p> : null}
+        {error ? (
+          <p className="mt-4 text-sm text-destructive">{error}</p>
+        ) : null}
       </section>
 
       <section className="rounded-lg border border-marble-deep bg-[#fbf9f3]">
@@ -175,7 +204,9 @@ export function GalleryManager({
           </div>
         ) : (
           <div className="px-5 py-14 text-center">
-            <h2 className="font-serif text-2xl text-ink">No gallery images yet</h2>
+            <h2 className="font-serif text-2xl text-ink">
+              No gallery images yet
+            </h2>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
               Upload the first venue image to replace the public placeholder
               mosaic.
@@ -212,7 +243,9 @@ function GalleryImageRow({
         });
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not save changes.");
+        setError(
+          err instanceof Error ? err.message : "Could not save changes.",
+        );
       }
     });
   }
@@ -224,7 +257,9 @@ function GalleryImageRow({
         await deleteGalleryImage(image.id);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not delete image.");
+        setError(
+          err instanceof Error ? err.message : "Could not delete image.",
+        );
       }
     });
   }

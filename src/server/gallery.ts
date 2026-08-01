@@ -93,6 +93,64 @@ export async function addGalleryImage(input: AddGalleryImageInput) {
   revalidateGalleryPaths();
 }
 
+/**
+ * Saves a whole upload batch in one pass.
+ *
+ * Not a loop over addGalleryImage: that reads max(sortOrder) and adds one, so
+ * ten concurrent uploads all read the same max and land on the same position.
+ * Here the order is assigned once, from a single read, and written in one
+ * transaction — and the gallery is revalidated once rather than ten times.
+ *
+ * Cloudinary metadata is fetched before the transaction opens: those are
+ * network calls, and holding a database transaction across them would keep it
+ * open for as long as the slowest lookup.
+ */
+export async function addGalleryImages(inputs: AddGalleryImageInput[]) {
+  await requireAdmin();
+
+  const parsed = z.array(addGalleryImageSchema).min(1).max(30).parse(inputs);
+  parsed.forEach((input) => assertGalleryPublicId(input.publicId));
+
+  const cloudinary = getConfiguredCloudinary();
+  const resolved = await Promise.all(
+    parsed.map(async (input) => {
+      const resource = await cloudinary.api
+        .resource(input.publicId, { resource_type: "image" })
+        .catch(() => null);
+
+      return {
+        publicId: input.publicId,
+        url: resource?.secure_url || input.url,
+        width: Number(resource?.width) || input.width,
+        height: Number(resource?.height) || input.height,
+        alt: input.alt || getDefaultAlt(input.publicId),
+      };
+    }),
+  );
+
+  const maxSortOrder = await db.galleryImage.aggregate({
+    _max: { sortOrder: true },
+  });
+  let nextSortOrder = (maxSortOrder._max.sortOrder ?? -1) + 1;
+
+  await db.$transaction(
+    resolved.map((image) =>
+      db.galleryImage.upsert({
+        where: { publicId: image.publicId },
+        update: {
+          url: image.url,
+          width: image.width,
+          height: image.height,
+          alt: image.alt,
+        },
+        create: { ...image, sortOrder: nextSortOrder++ },
+      }),
+    ),
+  );
+
+  revalidateGalleryPaths();
+}
+
 export async function updateGalleryImage(
   id: string,
   input: UpdateGalleryImageInput,
