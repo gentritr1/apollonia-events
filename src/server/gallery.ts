@@ -40,6 +40,8 @@ function revalidateGalleryPaths() {
   revalidatePath("/admin/gallery");
   revalidatePath("/gallery");
   revalidatePath("/");
+  // /venue shows the featured venue photo, so it goes stale too.
+  revalidatePath("/venue");
 }
 
 function assertGalleryPublicId(publicId: string) {
@@ -213,6 +215,32 @@ export async function reorderGalleryImages(ids: string[]) {
       db.galleryImage.update({ where: { id }, data: { sortOrder: index } }),
     ),
   );
+
+  revalidateGalleryPaths();
+}
+
+/**
+ * Marks one photo as the homepage hero or the venue feature.
+ *
+ * Clears the flag from every other row in the same transaction, so the "exactly
+ * one" rule cannot drift — a second featured photo would otherwise silently win
+ * or lose depending on sort order.
+ */
+export async function setGalleryFeature(
+  id: string,
+  placement: "home" | "venue",
+) {
+  await requireAdmin();
+
+  const field = placement === "home" ? "featuredHome" : "featuredVenue";
+
+  await db.$transaction([
+    db.galleryImage.updateMany({
+      where: { [field]: true },
+      data: { [field]: false },
+    }),
+    db.galleryImage.update({ where: { id }, data: { [field]: true } }),
+  ]);
 
   revalidateGalleryPaths();
 }

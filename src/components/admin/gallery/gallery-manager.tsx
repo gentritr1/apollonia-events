@@ -228,7 +228,6 @@ function GalleryImageRow({
   const router = useRouter();
   const [alt, setAlt] = useState(image.alt);
   const [caption, setCaption] = useState(image.caption ?? "");
-  const [sortOrder, setSortOrder] = useState(String(image.sortOrder));
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -239,7 +238,6 @@ function GalleryImageRow({
         await updateGalleryImage(image.id, {
           alt,
           caption: caption.trim() || null,
-          sortOrder: Number(sortOrder),
         });
         router.refresh();
       } catch (err) {
@@ -304,19 +302,8 @@ function GalleryImageRow({
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor={`${image.id}-sort`} className="text-ink-soft">
-            Order
-          </Label>
-          <Input
-            id={`${image.id}-sort`}
-            type="number"
-            min={0}
-            value={sortOrder}
-            onChange={(event) => setSortOrder(event.target.value)}
-            disabled={isPending}
-          />
-        </div>
+        {/* Order is set by dragging in the arranger above; a numeric
+              field here was a second, more technical way to do the same thing. */}
 
         <div className="flex gap-2 lg:justify-end">
           <Button type="button" onClick={save} disabled={isPending}>

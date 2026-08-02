@@ -90,6 +90,12 @@ model GalleryImage {
   alt       String
   caption   String?
   layout    GalleryLayout @default(STANDARD)
+  /// Explicit placement picks. Position used to decide these implicitly —
+  /// images[0] was both the homepage hero AND the venue photo — so reordering
+  /// the gallery silently changed two other screens with nothing saying so.
+  /// Exactly one row should hold each flag; the server action enforces it.
+  featuredHome  Boolean @default(false)
+  featuredVenue Boolean @default(false)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

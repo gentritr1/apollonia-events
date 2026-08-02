@@ -2,10 +2,21 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp, GripVertical, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  Home,
+  Loader2,
+  Landmark,
+} from "lucide-react";
 import type { GalleryImage } from "@prisma/client";
 
-import { reorderGalleryImages, updateGalleryImage } from "@/server/gallery";
+import {
+  reorderGalleryImages,
+  setGalleryFeature,
+  updateGalleryImage,
+} from "@/server/gallery";
 import { CloudinaryGalleryTile } from "@/components/public/cloudinary-gallery-tile";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -106,6 +117,23 @@ export function GalleryArranger({
     });
   }
 
+  function pickFeature(id: string, placement: "home" | "venue") {
+    setOrder((current) =>
+      current.map((image) => ({
+        ...image,
+        featuredHome:
+          placement === "home" ? image.id === id : image.featuredHome,
+        featuredVenue:
+          placement === "venue" ? image.id === id : image.featuredVenue,
+      })),
+    );
+
+    startTransition(async () => {
+      await setGalleryFeature(id, placement);
+      router.refresh();
+    });
+  }
+
   function saveOrder() {
     startTransition(async () => {
       await reorderGalleryImages(order.map((image) => image.id));
@@ -124,8 +152,8 @@ export function GalleryArranger({
         <div>
           <h2 className="font-serif text-2xl text-ink">Rendi dhe forma</h2>
           <p className="mt-1 text-sm text-ink-soft">
-            Tërhiqni për të ndryshuar rendin. Fotoja e parë bëhet kryesorja në
-            ballinë.
+            Tërhiqni për të ndryshuar rendin. Shënoni cila foto shfaqet te
+            Ballina dhe te Vendi.
           </p>
         </div>
         {dirty ? (
@@ -168,6 +196,44 @@ export function GalleryArranger({
               <span className="min-w-0 flex-1 truncate text-sm text-ink">
                 {image.alt}
               </span>
+
+              {/* Which screens this photo appears on. Position used to decide
+                  this silently, so moving a photo changed the homepage without
+                  saying so. */}
+              <div className="flex shrink-0 gap-1">
+                {(
+                  [
+                    { key: "home", label: "Ballina", Icon: Home },
+                    { key: "venue", label: "Vendi", Icon: Landmark },
+                  ] as const
+                ).map(({ key, label, Icon }) => {
+                  const on =
+                    key === "home" ? image.featuredHome : image.featuredVenue;
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => pickFeature(image.id, key)}
+                      aria-pressed={on}
+                      title={
+                        on
+                          ? `Kjo foto shfaqet te ${label}`
+                          : `Bëje këtë foton e ${label}`
+                      }
+                      className={cn(
+                        "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[0.7rem] transition-colors",
+                        on
+                          ? "border-gold bg-gold/15 text-gold-deep"
+                          : "border-marble-deep text-ink-soft hover:border-gold",
+                      )}
+                    >
+                      <Icon className="size-3" aria-hidden="true" />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
 
               <div className="flex shrink-0 gap-1">
                 {SHAPES.map((shape) => (

@@ -26,17 +26,24 @@ import { getUpcomingFreeDates } from "@/server/reservations";
 export const metadata: Metadata = homeCopy.metadata;
 
 export default async function Home() {
-  // Four, not three: the first image becomes the hero, the rest fill the strip.
+  // Five, so there are still three left for the strip after the hero is taken
+  // out — the hero can be any of them now, not necessarily the first.
   const [heroAndStrip, upcomingFreeDates] = await Promise.all([
-    getPublicGalleryImages(4),
+    getPublicGalleryImages(5),
     getUpcomingFreeDates(),
   ]);
   const cloudName =
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
     process.env.CLOUDINARY_CLOUD_NAME ||
     "";
-  const heroImage = cloudName ? heroAndStrip[0] : undefined;
-  const galleryImages = heroImage ? heroAndStrip.slice(1) : heroAndStrip;
+  // Falls back to the first photo when nothing is picked, so the page still
+  // has a hero on a fresh install.
+  const heroImage = cloudName
+    ? (heroAndStrip.find((image) => image.featuredHome) ?? heroAndStrip[0])
+    : undefined;
+  const galleryImages = heroImage
+    ? heroAndStrip.filter((image) => image.id !== heroImage.id).slice(0, 3)
+    : heroAndStrip.slice(0, 3);
   const hasGalleryImages = galleryImages.length > 0 && Boolean(cloudName);
 
   return (

@@ -94,13 +94,17 @@ export default async function VenuePage() {
   // One photo per space plus one for the heritage band. Falls back to the
   // painted placeholders when the gallery is empty or Cloudinary is
   // unconfigured, so the page never renders holes.
-  const images = await getPublicGalleryImages(venueCopy.spaces.length + 1);
+  const images = await getPublicGalleryImages(venueCopy.spaces.length + 2);
   const cloudName =
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
     process.env.CLOUDINARY_CLOUD_NAME ||
     "";
-  const heritageImage = cloudName ? images[0] : null;
-  const spaceImages = cloudName ? images.slice(1) : [];
+  const heritageImage = cloudName
+    ? (images.find((image) => image.featuredVenue) ?? images[0] ?? null)
+    : null;
+  const spaceImages = cloudName
+    ? images.filter((image) => image.id !== heritageImage?.id)
+    : [];
 
   return (
     <>
