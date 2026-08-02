@@ -50,6 +50,26 @@ function assertGalleryPublicId(publicId: string) {
   }
 }
 
+/**
+ * Shape given to a newly uploaded photo, by position.
+ *
+ * Every photo defaulting to STANDARD turned the wall into uniform rows of
+ * three — a grid, not a mosaic. This cycle is chosen so each row still fills
+ * all twelve columns: TALL(4)+WIDE(8), then STANDARD(4)x3. The admin can
+ * override any of it in the arranger; this only decides how a fresh batch
+ * lands.
+ */
+const LAYOUT_CYCLE = [
+  "TALL",
+  "WIDE",
+  "STANDARD",
+  "STANDARD",
+  "STANDARD",
+] as const;
+
+const layoutForPosition = (sortOrder: number) =>
+  LAYOUT_CYCLE[sortOrder % LAYOUT_CYCLE.length]!;
+
 function getDefaultAlt(publicId: string) {
   const filename = publicId.split("/").at(-1) || "gallery image";
   return filename.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
@@ -86,6 +106,7 @@ export async function addGalleryImage(input: AddGalleryImageInput) {
       width: Number(resource.width) || parsed.width,
       height: Number(resource.height) || parsed.height,
       alt: parsed.alt || getDefaultAlt(parsed.publicId),
+      layout: layoutForPosition((maxSortOrder._max.sortOrder ?? -1) + 1),
       sortOrder: (maxSortOrder._max.sortOrder ?? -1) + 1,
     },
   });
@@ -143,7 +164,11 @@ export async function addGalleryImages(inputs: AddGalleryImageInput[]) {
           height: image.height,
           alt: image.alt,
         },
-        create: { ...image, sortOrder: nextSortOrder++ },
+        create: {
+          ...image,
+          layout: layoutForPosition(nextSortOrder),
+          sortOrder: nextSortOrder++,
+        },
       }),
     ),
   );
