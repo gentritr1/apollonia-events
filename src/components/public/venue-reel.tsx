@@ -5,8 +5,15 @@ import { useEffect, useRef, useState } from "react";
 import { MeanderRule } from "@/components/public/meander-rule";
 import { cn } from "@/lib/utils";
 
-/** Fixed brand assets, not admin-managed content — see apollonia/reel in Cloudinary. */
-const REEL_BASE = "apollonia/reel/venue-reel";
+/**
+ * Fixed brand assets, not admin-managed content — see apollonia/reel in
+ * Cloudinary. The version prefixes are deliberate: Cloudinary's CDN kept
+ * serving a stale copy for minutes after re-upload even with invalidation, so
+ * a re-encode would silently not reach anyone. Versioned URLs are immutable,
+ * so a new encode means a new URL and the change is immediate.
+ */
+const REEL_MP4 = "v1785670725/apollonia/reel/venue-reel.mp4";
+const REEL_WEBM = "v1785670728/apollonia/reel/venue-reel-vp9.webm";
 const POSTER_PUBLIC_ID = "apollonia/gallery/u3dt0xmhzhfxck1xgael";
 
 /**
@@ -59,10 +66,10 @@ export function VenueReel({
   }
 
   const poster = `https://res.cloudinary.com/${cloudName}/image/upload/f_auto,q_auto,w_1280/${POSTER_PUBLIC_ID}`;
-  const video = (ext: string) =>
-    `https://res.cloudinary.com/${cloudName}/video/upload/${REEL_BASE}${
-      ext === "webm" ? "-vp9" : ""
-    }.${ext}`;
+  const video = (ext: "webm" | "mp4") =>
+    `https://res.cloudinary.com/${cloudName}/video/upload/${
+      ext === "webm" ? REEL_WEBM : REEL_MP4
+    }`;
 
   return (
     <div

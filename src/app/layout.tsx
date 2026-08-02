@@ -20,12 +20,22 @@ const inter = Inter({
   display: "swap",
 });
 
+/**
+ * Canonical origin for metadata, OG images and JSON-LD.
+ *
+ * The default was `apollonia.events` — not the domain the site runs on. With
+ * NEXT_PUBLIC_SITE_URL unset in production, every og:image pointed at a host
+ * that does not serve this site, so social previews resolved to nothing. The
+ * default is now the live origin, and the env var only overrides it.
+ */
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.apolloniaevents.com";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://apollonia.events",
-  ),
+  metadataBase: new URL(SITE_URL),
   title: publicMetadata.root.title,
   description: publicMetadata.root.description,
+  alternates: { canonical: "/" },
 };
 
 const toneScript = `
@@ -49,7 +59,7 @@ const toneScript = `
 })();
 `;
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://apollonia.events";
+const siteUrl = SITE_URL;
 
 const organizationJsonLd = JSON.stringify({
   "@context": "https://schema.org",
