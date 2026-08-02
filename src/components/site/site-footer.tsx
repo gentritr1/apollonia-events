@@ -14,8 +14,11 @@ export function SiteFooter() {
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* brand */}
           <div className="lg:col-span-2">
+            {/* Same lockup as the header: emblem plus the name in spaced
+                capitals. The lowercase wordmark here made the two read as
+                different marks on one page. */}
             <LogoBadge variant="footer" className="mb-6 size-18" />
-            <Logo className="text-2xl" />
+            <Logo variant="compact" className="text-2xl" />
             <p className="mt-5 max-w-xs text-pretty text-sm leading-relaxed text-ink-soft">
               {footerCopy.description}
             </p>

@@ -40,6 +40,24 @@ export function DayTimelineGnomon({ className }: { className?: string }) {
       // .day-timeline::after reads the same variable, so the glow and the sun
       // stay locked together instead of drifting apart.
       section.style.setProperty("--gnomon-progress", progress.toFixed(4));
+
+      // Light the hour the sun is currently over. Without this the sun drifted
+      // across four inert columns and the section read as a static list with a
+      // dot on it — the moments it passes should visibly wake up.
+      const items = section.querySelectorAll<HTMLElement>(".timeline-item");
+      if (items.length > 0) {
+        // Columns are evenly spaced, so the sun is over item n when progress
+        // falls in its slice. Clamped because progress reaches exactly 1.
+        const active = Math.min(
+          items.length - 1,
+          Math.floor(progress * items.length),
+        );
+
+        items.forEach((item, index) => {
+          item.dataset.sunlit = String(index === active && progress > 0);
+          item.dataset.past = String(index < active);
+        });
+      }
     };
 
     const schedule = () => {
